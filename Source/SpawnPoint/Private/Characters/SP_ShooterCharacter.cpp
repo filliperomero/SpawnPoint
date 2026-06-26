@@ -4,6 +4,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/SP_CombatComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -36,6 +37,9 @@ ASP_ShooterCharacter::ASP_ShooterCharacter()
 	GetMesh()->bOnlyOwnerSee = false;
 	GetMesh()->bOwnerNoSee = true;
 	GetMesh()->bReceivesDecals = false;
+	
+	CombatComponent = CreateDefaultSubobject<USP_CombatComponent>("CombatComponent");
+	CombatComponent->SetIsReplicated(true);
 }
 
 void ASP_ShooterCharacter::BeginPlay()

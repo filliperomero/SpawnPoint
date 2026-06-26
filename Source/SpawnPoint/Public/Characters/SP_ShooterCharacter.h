@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "SP_ShooterCharacter.generated.h"
 
+class USP_CombatComponent;
 class UCameraComponent;
 class USpringArmComponent;
 
@@ -23,6 +24,9 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USP_CombatComponent> CombatComponent;
+	
 	/* 1st Person View (arms) */
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USkeletalMeshComponent> Mesh1P;
