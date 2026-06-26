@@ -2,6 +2,7 @@
 
 #include "SpawnPoint/Public/Characters/SP_ShooterCharacter.h"
 
+#include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SP_CombatComponent.h"
@@ -55,5 +56,43 @@ void ASP_ShooterCharacter::Tick(float DeltaTime)
 void ASP_ShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	
+	UEnhancedInputComponent* SPInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
+	SPInputComponent->BindAction(CycleWeaponAction, ETriggerEvent::Started, this, &ThisClass::InputCycleWeapon);
+	SPInputComponent->BindAction(ReloadWeaponAction, ETriggerEvent::Started, this, &ThisClass::InputReloadWeapon);
+	SPInputComponent->BindAction(FireWeaponAction, ETriggerEvent::Started, this, &ThisClass::InputFireWeaponPressed);
+	SPInputComponent->BindAction(FireWeaponAction, ETriggerEvent::Completed, this, &ThisClass::InputFireWeaponReleased);
+	SPInputComponent->BindAction(AimWeaponAction, ETriggerEvent::Started, this, &ThisClass::InputAimPressed);
+	SPInputComponent->BindAction(AimWeaponAction, ETriggerEvent::Completed, this, &ThisClass::InputAimReleased);
+}
+
+void ASP_ShooterCharacter::InputCycleWeapon()
+{
+	CombatComponent->InitiateCycleWeapon();
+}
+
+void ASP_ShooterCharacter::InputReloadWeapon()
+{
+	CombatComponent->InitiateReloadWeapon();
+}
+
+void ASP_ShooterCharacter::InputFireWeaponPressed()
+{
+	CombatComponent->InitiateFireWeaponPressed();
+}
+
+void ASP_ShooterCharacter::InputFireWeaponReleased()
+{
+	CombatComponent->InitiateFireWeaponReleased();
+}
+
+void ASP_ShooterCharacter::InputAimPressed()
+{
+	CombatComponent->InitiateAimPressed();
+}
+
+void ASP_ShooterCharacter::InputAimReleased()
+{
+	CombatComponent->InitiateAimReleased();
 }
 
