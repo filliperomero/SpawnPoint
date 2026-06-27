@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
 #include "SP_Weapon.generated.h"
 
@@ -16,6 +17,9 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
+	
+	UPROPERTY(EditAnywhere, Category = "SpawnPoint|WeaponType")
+	FGameplayTag WeaponType;
 
 private:
 	/** Weapon Mesh: 1st Person View */
