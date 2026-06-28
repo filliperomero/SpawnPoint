@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "SP_CombatComponent.generated.h"
 
+class USP_WeaponData;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SPAWNPOINT_API USP_CombatComponent : public UActorComponent
@@ -23,6 +24,9 @@ public:
 	void InitiateReloadWeapon();
 	void InitiateAimPressed();
 	void InitiateAimReleased();
+	
+	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|Weapon")
+	TObjectPtr<USP_WeaponData> WeaponData;
 	
 protected:
 

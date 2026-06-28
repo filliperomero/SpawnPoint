@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/SP_PlayerInterface.h"
 #include "SP_ShooterCharacter.generated.h"
 
 class UInputAction;
@@ -12,7 +13,7 @@ class UCameraComponent;
 class USpringArmComponent;
 
 UCLASS()
-class SPAWNPOINT_API ASP_ShooterCharacter : public ACharacter
+class SPAWNPOINT_API ASP_ShooterCharacter : public ACharacter, public ISP_PlayerInterface
 {
 	GENERATED_BODY()
 
@@ -20,6 +21,10 @@ public:
 	ASP_ShooterCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	/** PlayerInterface */
+	virtual FName GetWeaponAttachPoint_Implementation(const FGameplayTag& WeaponType) const override;
+	/** ~PlayerInterface */
 	
 protected:
 	virtual void BeginPlay() override;

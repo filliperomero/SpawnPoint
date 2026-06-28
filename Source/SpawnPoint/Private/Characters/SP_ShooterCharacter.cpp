@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SP_CombatComponent.h"
+#include "Data/SP_WeaponData.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
@@ -64,6 +65,13 @@ void ASP_ShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	SPInputComponent->BindAction(FireWeaponAction, ETriggerEvent::Completed, this, &ThisClass::InputFireWeaponReleased);
 	SPInputComponent->BindAction(AimWeaponAction, ETriggerEvent::Started, this, &ThisClass::InputAimPressed);
 	SPInputComponent->BindAction(AimWeaponAction, ETriggerEvent::Completed, this, &ThisClass::InputAimReleased);
+}
+
+FName ASP_ShooterCharacter::GetWeaponAttachPoint_Implementation(const FGameplayTag& WeaponType) const
+{
+	checkf(CombatComponent->WeaponData, TEXT("No Weapon Data Asset - Fill out BP_SP_ShooterCharacter"))
+	
+	return CombatComponent->WeaponData->GripPoints.FindChecked(WeaponType);
 }
 
 void ASP_ShooterCharacter::InputCycleWeapon()
