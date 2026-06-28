@@ -30,12 +30,19 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|Weapon")
 	TObjectPtr<USP_WeaponData> WeaponData;
 	
+	void Equip(ASP_Weapon* WeaponToEquip);
 	void SpawnInventory();
 	void DestroyInventory();
 	
 protected:
 
 private:
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_CurrentWeapon)
+	TObjectPtr<ASP_Weapon> CurrentWeapon;
+	
+	UFUNCTION()
+	void OnRep_CurrentWeapon(ASP_Weapon* PrevWeapon);
+	
 	UPROPERTY(Transient, Replicated)
 	TArray<ASP_Weapon*> Inventory;
 	

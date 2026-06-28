@@ -22,6 +22,7 @@ void USP_CombatComponent::GetLifetimeReplicatedProps(TArray<class FLifetimePrope
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
 	DOREPLIFETIME(ThisClass, Inventory);
+	DOREPLIFETIME(ThisClass, CurrentWeapon);
 }
 
 void USP_CombatComponent::InitiateCycleWeapon()
@@ -54,6 +55,12 @@ void USP_CombatComponent::InitiateAimReleased()
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Initiate Aim Released"), false);
 }
 
+void USP_CombatComponent::Equip(ASP_Weapon* WeaponToEquip)
+{
+	CurrentWeapon = WeaponToEquip;
+	CurrentWeapon->AttachToOwningPawn();
+}
+
 void USP_CombatComponent::SpawnInventory()
 {
 	if (GetOwner()->GetLocalRole() < ROLE_Authority) return;
@@ -70,13 +77,28 @@ void USP_CombatComponent::SpawnInventory()
 	
 	if (Inventory.Num() > 0)
 	{
-		Inventory[0]->AttachToOwningPawn();
+		Equip(Inventory[0]);
 	}
 }
 
 void USP_CombatComponent::DestroyInventory()
 {
-	// TODO: Destroy the inventory once we have one.
+	for (ASP_Weapon* Weapon : Inventory)
+	{
+		if (IsValid(Weapon))
+		{
+			Weapon->Destroy();
+		}
+	}
+	
+	Inventory.Empty();
+}
+
+void USP_CombatComponent::OnRep_CurrentWeapon(ASP_Weapon* PrevWeapon)
+{
+	if (!IsValid(CurrentWeapon)) return;
+	
+	CurrentWeapon->AttachToOwningPawn();
 }
 
 ASP_Weapon* USP_CombatComponent::SpawnWeapon(TSubclassOf<ASP_Weapon> WeaponClass) const

@@ -49,6 +49,16 @@ void ASP_ShooterCharacter::BeginPlay()
 	Super::BeginPlay();
 }
 
+void ASP_ShooterCharacter::BeginDestroy()
+{
+	Super::BeginDestroy();
+	
+	if (IsValid(CombatComponent))
+	{
+		CombatComponent->DestroyInventory();
+	}
+}
+
 void ASP_ShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
