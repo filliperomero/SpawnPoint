@@ -4,6 +4,7 @@
 
 #include "Engine/Engine.h"
 #include "GameFramework/Pawn.h"
+#include "Net/UnrealNetwork.h"
 #include "Weapons/SP_Weapon.h"
 
 USP_CombatComponent::USP_CombatComponent()
@@ -14,6 +15,13 @@ USP_CombatComponent::USP_CombatComponent()
 void USP_CombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
+
+void USP_CombatComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(ThisClass, Inventory);
 }
 
 void USP_CombatComponent::InitiateCycleWeapon()
@@ -48,12 +56,21 @@ void USP_CombatComponent::InitiateAimReleased()
 
 void USP_CombatComponent::SpawnInventory()
 {
-	ASP_Weapon* NewWeapon = SpawnWeapon(DefaultWeaponClass);
-	
-	// Important check since it will only exist on Servers
-	if (IsValid(NewWeapon))
+	if (GetOwner()->GetLocalRole() < ROLE_Authority) return;
+
+	for (TSubclassOf<ASP_Weapon>& WeaponClass : DefaultWeaponClasses)
 	{
-		NewWeapon->AttachToOwningPawn();
+		ASP_Weapon* NewWeapon = SpawnWeapon(WeaponClass);
+
+		if (IsValid(NewWeapon))
+		{
+			Inventory.AddUnique(NewWeapon);
+		}
+	}
+	
+	if (Inventory.Num() > 0)
+	{
+		Inventory[0]->AttachToOwningPawn();
 	}
 }
 

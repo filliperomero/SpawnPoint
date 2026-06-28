@@ -17,6 +17,7 @@ class SPAWNPOINT_API USP_CombatComponent : public UActorComponent
 public:
 	USP_CombatComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	/* Cycle to the next weapon in the inventory */
 	void InitiateCycleWeapon();
@@ -35,8 +36,11 @@ public:
 protected:
 
 private:
+	UPROPERTY(Transient, Replicated)
+	TArray<ASP_Weapon*> Inventory;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|Weapon")
-	TSubclassOf<ASP_Weapon> DefaultWeaponClass;
+	TArray<TSubclassOf<ASP_Weapon>> DefaultWeaponClasses;
 	
 	ASP_Weapon* SpawnWeapon(TSubclassOf<ASP_Weapon> WeaponClass) const;
 };
