@@ -84,6 +84,16 @@ FName ASP_ShooterCharacter::GetWeaponAttachPoint_Implementation(const FGameplayT
 	return CombatComponent->WeaponData->GripPoints.FindChecked(WeaponType);
 }
 
+USkeletalMeshComponent* ASP_ShooterCharacter::GetMesh1P_Implementation() const
+{
+	return Mesh1P;
+}
+
+USkeletalMeshComponent* ASP_ShooterCharacter::GetMesh3P_Implementation() const
+{
+	return GetMesh();
+}
+
 void ASP_ShooterCharacter::InputCycleWeapon()
 {
 	CombatComponent->InitiateCycleWeapon();

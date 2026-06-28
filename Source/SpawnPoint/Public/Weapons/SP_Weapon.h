@@ -14,6 +14,9 @@ class SPAWNPOINT_API ASP_Weapon : public AActor
 
 public:
 	ASP_Weapon();
+	virtual void OnRep_Instigator() override;
+	
+	void AttachToOwningPawn() const;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -29,6 +32,8 @@ private:
 	/** Weapon Mesh: 3rd Person View */
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USkeletalMeshComponent> Mesh3P;
+	
+	void SetMeshVisibilities(APawn* OwningPawn) const;
 	
 public:
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }

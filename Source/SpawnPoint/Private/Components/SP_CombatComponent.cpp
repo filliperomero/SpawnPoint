@@ -49,6 +49,12 @@ void USP_CombatComponent::InitiateAimReleased()
 void USP_CombatComponent::SpawnInventory()
 {
 	ASP_Weapon* NewWeapon = SpawnWeapon(DefaultWeaponClass);
+	
+	// Important check since it will only exist on Servers
+	if (IsValid(NewWeapon))
+	{
+		NewWeapon->AttachToOwningPawn();
+	}
 }
 
 void USP_CombatComponent::DestroyInventory()
