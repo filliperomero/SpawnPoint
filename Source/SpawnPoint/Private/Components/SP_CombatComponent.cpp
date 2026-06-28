@@ -3,6 +3,8 @@
 #include "Components/SP_CombatComponent.h"
 
 #include "Engine/Engine.h"
+#include "GameFramework/Pawn.h"
+#include "Weapons/SP_Weapon.h"
 
 USP_CombatComponent::USP_CombatComponent()
 {
@@ -42,5 +44,30 @@ void USP_CombatComponent::InitiateAimPressed()
 void USP_CombatComponent::InitiateAimReleased()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Initiate Aim Released"), false);
+}
+
+void USP_CombatComponent::SpawnInventory()
+{
+	ASP_Weapon* NewWeapon = SpawnWeapon(DefaultWeaponClass);
+}
+
+void USP_CombatComponent::DestroyInventory()
+{
+	// TODO: Destroy the inventory once we have one.
+}
+
+ASP_Weapon* USP_CombatComponent::SpawnWeapon(TSubclassOf<ASP_Weapon> WeaponClass) const
+{
+	AActor* OwningActor = GetOwner();
+	
+	if (!IsValid(OwningActor)) return nullptr;
+	if (OwningActor->GetLocalRole() < ROLE_Authority) return nullptr;
+	
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Instigator = Cast<APawn>(OwningActor);
+	SpawnParams.Owner = OwningActor;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	
+	return GetWorld()->SpawnActor<ASP_Weapon>(WeaponClass, SpawnParams);
 }
 

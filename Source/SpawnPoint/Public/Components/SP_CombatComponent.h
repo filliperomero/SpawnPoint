@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "SP_CombatComponent.generated.h"
 
+class ASP_Weapon;
 class USP_WeaponData;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -28,8 +29,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|Weapon")
 	TObjectPtr<USP_WeaponData> WeaponData;
 	
+	void SpawnInventory();
+	void DestroyInventory();
+	
 protected:
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|Weapon")
+	TSubclassOf<ASP_Weapon> DefaultWeaponClass;
 	
+	ASP_Weapon* SpawnWeapon(TSubclassOf<ASP_Weapon> WeaponClass) const;
 };

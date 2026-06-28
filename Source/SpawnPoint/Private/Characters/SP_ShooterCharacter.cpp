@@ -67,6 +67,16 @@ void ASP_ShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	SPInputComponent->BindAction(AimWeaponAction, ETriggerEvent::Completed, this, &ThisClass::InputAimReleased);
 }
 
+void ASP_ShooterCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	
+	if (IsValid(CombatComponent))
+	{
+		CombatComponent->SpawnInventory();
+	}
+}
+
 FName ASP_ShooterCharacter::GetWeaponAttachPoint_Implementation(const FGameplayTag& WeaponType) const
 {
 	checkf(CombatComponent->WeaponData, TEXT("No Weapon Data Asset - Fill out BP_SP_ShooterCharacter"))
