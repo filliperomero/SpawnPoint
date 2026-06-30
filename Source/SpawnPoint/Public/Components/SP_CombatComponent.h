@@ -27,7 +27,7 @@ public:
 	void InitiateAimPressed();
 	void InitiateAimReleased();
 	
-	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|Weapon")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|Weapon")
 	TObjectPtr<USP_WeaponData> WeaponData;
 	
 	void Equip(ASP_Weapon* WeaponToEquip);
@@ -37,7 +37,7 @@ public:
 protected:
 
 private:
-	UPROPERTY(Transient, ReplicatedUsing = OnRep_CurrentWeapon)
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_CurrentWeapon, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<ASP_Weapon> CurrentWeapon;
 	
 	UFUNCTION()

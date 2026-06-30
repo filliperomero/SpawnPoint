@@ -21,7 +21,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
-	UPROPERTY(EditAnywhere, Category = "SpawnPoint|WeaponType")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpawnPoint|WeaponType")
 	FGameplayTag WeaponType;
 
 private:

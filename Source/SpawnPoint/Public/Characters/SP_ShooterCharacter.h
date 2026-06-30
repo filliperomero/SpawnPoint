@@ -39,7 +39,7 @@ private:
 	void InputAimPressed();
 	void InputAimReleased();
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SpawnPoint|Combat", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<USP_CombatComponent> CombatComponent;
 	
 	/* 1st Person View (arms) */

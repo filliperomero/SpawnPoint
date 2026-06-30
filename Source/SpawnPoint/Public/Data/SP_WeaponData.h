@@ -46,12 +46,12 @@ class SPAWNPOINT_API USP_WeaponData : public UDataAsset
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|WeaponData|Weapons")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|WeaponData|Weapons")
 	TMap<FGameplayTag, FName> GripPoints;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|WeaponData|FirstPerson")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|WeaponData|FirstPerson")
 	TMap<FGameplayTag, FPlayerAnims> FirstPersonAnims;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|WeaponData|ThirdPerson")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|WeaponData|ThirdPerson")
 	TMap<FGameplayTag, FPlayerAnims> ThirdPersonAnims;
 };
