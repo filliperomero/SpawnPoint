@@ -47,6 +47,8 @@ ASP_ShooterCharacter::ASP_ShooterCharacter()
 void ASP_ShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	FirstPersonCamera->SetFieldOfView(DefaultFieldOfView);
 }
 
 void ASP_ShooterCharacter::BeginDestroy()
@@ -127,10 +129,12 @@ void ASP_ShooterCharacter::InputFireWeaponReleased()
 void ASP_ShooterCharacter::InputAimPressed()
 {
 	CombatComponent->InitiateAimPressed();
+	OnAim(true);
 }
 
 void ASP_ShooterCharacter::InputAimReleased()
 {
 	CombatComponent->InitiateAimReleased();
+	OnAim(false);
 }
 

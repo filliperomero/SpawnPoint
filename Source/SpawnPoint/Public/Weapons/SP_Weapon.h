@@ -18,6 +18,9 @@ public:
 	
 	void AttachToOwningPawn() const;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|Aiming")
+	float AimFieldOfView { 65.0f };
+	
 protected:
 	virtual void BeginPlay() override;
 	

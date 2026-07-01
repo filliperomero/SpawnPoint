@@ -30,6 +30,13 @@ public:
 	virtual USkeletalMeshComponent* GetMesh1P_Implementation() const override;
 	virtual USkeletalMeshComponent* GetMesh3P_Implementation() const override;
 	/** ~PlayerInterface */
+	
+protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnAim(bool bIsAiming);
+	
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "SpawnPoint|Aiming")
+	float DefaultFieldOfView { 90.f };
 
 private:
 	void InputCycleWeapon();
@@ -49,7 +56,7 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USpringArmComponent> SpringArm;
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SpawnPoint|Camera", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UCameraComponent> FirstPersonCamera;
 	
 	UPROPERTY(EditAnywhere, Category = "SpawnPoint|Input")
