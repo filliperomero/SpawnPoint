@@ -30,6 +30,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|Weapon")
 	TObjectPtr<USP_WeaponData> WeaponData;
 	
+	UPROPERTY(BlueprintReadOnly, Replicated)
+	bool bAiming { false };
+	
 	void Equip(ASP_Weapon* WeaponToEquip);
 	void SpawnInventory();
 	void DestroyInventory();
@@ -50,4 +53,9 @@ private:
 	TArray<TSubclassOf<ASP_Weapon>> DefaultWeaponClasses;
 	
 	ASP_Weapon* SpawnWeapon(TSubclassOf<ASP_Weapon> WeaponClass) const;
+	
+	UFUNCTION(Server, Reliable)
+	void Server_Aim(bool bPressed);
+	
+	void Local_Aim(bool bPressed);
 };

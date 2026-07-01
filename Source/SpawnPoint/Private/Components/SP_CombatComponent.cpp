@@ -23,6 +23,7 @@ void USP_CombatComponent::GetLifetimeReplicatedProps(TArray<class FLifetimePrope
 	
 	DOREPLIFETIME(ThisClass, Inventory);
 	DOREPLIFETIME(ThisClass, CurrentWeapon);
+	DOREPLIFETIME_CONDITION(ThisClass, bAiming, COND_SkipOwner);
 }
 
 void USP_CombatComponent::InitiateCycleWeapon()
@@ -47,12 +48,24 @@ void USP_CombatComponent::InitiateReloadWeapon()
 
 void USP_CombatComponent::InitiateAimPressed()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Initiate Aim Pressed"), false);
+	Local_Aim(true);
+	Server_Aim(true);
 }
 
 void USP_CombatComponent::InitiateAimReleased()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Initiate Aim Released"), false);
+	Local_Aim(false);
+	Server_Aim(false);
+}
+
+void USP_CombatComponent::Server_Aim_Implementation(bool bPressed)
+{
+	Local_Aim(bPressed);
+}
+
+void USP_CombatComponent::Local_Aim(bool bPressed)
+{
+	bAiming = bPressed;
 }
 
 void USP_CombatComponent::Equip(ASP_Weapon* WeaponToEquip)
@@ -115,4 +128,3 @@ ASP_Weapon* USP_CombatComponent::SpawnWeapon(TSubclassOf<ASP_Weapon> WeaponClass
 	
 	return GetWorld()->SpawnActor<ASP_Weapon>(WeaponClass, SpawnParams);
 }
-
