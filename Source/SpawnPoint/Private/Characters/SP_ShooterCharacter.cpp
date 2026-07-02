@@ -61,6 +61,23 @@ void ASP_ShooterCharacter::BeginDestroy()
 	}
 }
 
+FRotator ASP_ShooterCharacter::GetFixedAimRotation() const
+{
+	FRotator AimRotation = GetBaseAimRotation();
+	
+	if (AimRotation.Pitch > 90.f && !IsLocallyControlled())
+	{
+		// Map pitch from [270, 360) to [-90, 0]
+		// We need to do this since there is a compression made on this value for multiplayer and we need to map it properly
+		const FVector2D InRange(270.f, 360.f);
+		const FVector2D OutRange(-90.f, 0.f);
+		
+		AimRotation.Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AimRotation.Pitch);
+	}
+	
+	return AimRotation;
+}
+
 void ASP_ShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
