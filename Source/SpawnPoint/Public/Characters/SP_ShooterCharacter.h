@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/SP_PlayerInterface.h"
+#include "Types/SP_Types.h"
 #include "SP_ShooterCharacter.generated.h"
 
 class UInputAction;
@@ -27,6 +28,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	FRotator GetFixedAimRotation() const;
+	
+	UFUNCTION(BlueprintCallable)
+	bool HasCurrentWeapon() const;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "SpawnPoint|FABRIK")
 	FTransform FABRIK_SocketTransform;
@@ -51,7 +55,22 @@ private:
 	void InputFireWeaponReleased();
 	void InputAimPressed();
 	void InputAimReleased();
+	
 	void CalculateFABRIKSocketTransform();
+	void CalculateTurnInPlaceParameters(float DeltaTime);
+	void TurnInPlace(float DeltaTime);
+	
+	FRotator StartingAimRotation;
+	float InterpAO_Yaw;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "SpawnPoint|TurnInPlace", meta=(AllowPrivateAccess="true"))
+	float AO_Yaw;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "SpawnPoint|Strafing", meta=(AllowPrivateAccess="true"))
+	float MovementOffsetYaw;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "SpawnPoint|TurnInPlace", meta=(AllowPrivateAccess="true"))
+	ETurningInPlace TurningStatus { ETurningInPlace::NotTurning };
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SpawnPoint|Combat", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<USP_CombatComponent> CombatComponent;
