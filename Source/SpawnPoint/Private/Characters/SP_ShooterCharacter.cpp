@@ -9,6 +9,7 @@
 #include "Data/SP_WeaponData.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Weapons/SP_Weapon.h"
 
 ASP_ShooterCharacter::ASP_ShooterCharacter()
 {
@@ -81,6 +82,23 @@ FRotator ASP_ShooterCharacter::GetFixedAimRotation() const
 void ASP_ShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	CalculateFABRIKSocketTransform();
+}
+
+void ASP_ShooterCharacter::CalculateFABRIKSocketTransform()
+{
+	if (IsValid(CombatComponent) && IsValid(CombatComponent->GetCurrentWeapon()) && IsValid(CombatComponent->GetCurrentWeapon()->GetMesh3P()))
+	{
+		FABRIK_SocketTransform = CombatComponent->GetCurrentWeapon()->GetMesh3P()->GetSocketTransform("FABRIK_Socket", RTS_World);
+		
+		FVector OutLocation;
+		FRotator OutRotation;
+		GetMesh()->TransformToBoneSpace("hand_r", FABRIK_SocketTransform.GetLocation(), FABRIK_SocketTransform.GetRotation().Rotator(), OutLocation, OutRotation);
+		
+		FABRIK_SocketTransform.SetLocation(OutLocation);
+		FABRIK_SocketTransform.SetRotation(OutRotation.Quaternion());
+	}
 }
 
 void ASP_ShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -154,4 +172,3 @@ void ASP_ShooterCharacter::InputAimReleased()
 	CombatComponent->InitiateAimReleased();
 	OnAim(false);
 }
-

@@ -28,6 +28,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FRotator GetFixedAimRotation() const;
 	
+	UPROPERTY(BlueprintReadOnly, Category = "SpawnPoint|FABRIK")
+	FTransform FABRIK_SocketTransform;
+	
 	/** PlayerInterface */
 	virtual FName GetWeaponAttachPoint_Implementation(const FGameplayTag& WeaponType) const override;
 	virtual USkeletalMeshComponent* GetMesh1P_Implementation() const override;
@@ -48,6 +51,7 @@ private:
 	void InputFireWeaponReleased();
 	void InputAimPressed();
 	void InputAimReleased();
+	void CalculateFABRIKSocketTransform();
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SpawnPoint|Combat", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<USP_CombatComponent> CombatComponent;

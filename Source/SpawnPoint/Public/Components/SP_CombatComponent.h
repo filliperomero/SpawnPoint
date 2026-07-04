@@ -58,4 +58,7 @@ private:
 	void Server_Aim(bool bPressed);
 	
 	void Local_Aim(bool bPressed);
+	
+public:
+	ASP_Weapon* GetCurrentWeapon() { return CurrentWeapon; };
 };
