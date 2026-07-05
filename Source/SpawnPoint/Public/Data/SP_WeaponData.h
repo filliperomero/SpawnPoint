@@ -7,6 +7,7 @@
 #include "Engine/DataAsset.h"
 #include "SP_WeaponData.generated.h"
 
+class UAnimMontage;
 class UBlendSpace;
 class UAnimSequence;
 
@@ -40,18 +41,42 @@ struct FPlayerAnims
 	TObjectPtr<UBlendSpace> Strafe_Crouching = nullptr;
 };
 
+USTRUCT(BlueprintType)
+struct FMontageData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UAnimMontage> EquipMontage = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UAnimMontage> ReloadMontage = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UAnimMontage> FireMontage = nullptr;
+};
+
 UCLASS()
 class SPAWNPOINT_API USP_WeaponData : public UDataAsset
 {
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|WeaponData|Weapons")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|WeaponData|Weapons", meta = (Categories = "SPTags.Weapon.Type"))
 	TMap<FGameplayTag, FName> GripPoints;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|WeaponData|FirstPerson")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|WeaponData|Weapons", meta = (Categories = "SPTags.Weapon.Type"))
+	TMap<FGameplayTag, FMontageData> WeaponMontages;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|WeaponData|FirstPerson", meta = (Categories = "SPTags.Weapon.Type"))
 	TMap<FGameplayTag, FPlayerAnims> FirstPersonAnims;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|WeaponData|ThirdPerson")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|WeaponData|FirstPerson", meta = (Categories = "SPTags.Weapon.Type"))
+	TMap<FGameplayTag, FMontageData> FirstPersonMontages;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|WeaponData|ThirdPerson", meta = (Categories = "SPTags.Weapon.Type"))
 	TMap<FGameplayTag, FPlayerAnims> ThirdPersonAnims;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|WeaponData|ThirdPerson", meta = (Categories = "SPTags.Weapon.Type"))
+	TMap<FGameplayTag, FMontageData> ThirdPersonMontages;
 };
