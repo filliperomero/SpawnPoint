@@ -93,6 +93,13 @@ void ASP_Weapon::WeaponTrace(FHitResult& OutHitResult, float TraceLength)
 			QueryParams,
 			ResponseParams);
 		
+		if (!bHit)
+		{
+			// That way, when we hit the sky, it does not go to the origin of the map
+			OutHitResult.ImpactPoint = End;
+		}
+		
+		/**
 		DrawDebugSphereTraceSingle(
 			GetWorld(),
 			Start,
@@ -104,7 +111,13 @@ void ASP_Weapon::WeaponTrace(FHitResult& OutHitResult, float TraceLength)
 			FColor::Green,
 			FColor::Red,
 			5.f);
+		*/
 	}
+}
+
+void ASP_Weapon::Local_Fire(const FVector& ImpactPoint, const FVector& ImpactNormal, TEnumAsByte<EPhysicalSurface> ImpactSurfaceType, bool bIsFirstPerson)
+{
+	FireEffects(ImpactPoint, ImpactNormal, ImpactSurfaceType, bIsFirstPerson);
 }
 
 void ASP_Weapon::SetMeshVisibilities(APawn* OwningPawn) const

@@ -10,6 +10,7 @@
 #include "GameFramework/Pawn.h"
 #include "Interfaces/SP_PlayerInterface.h"
 #include "Net/UnrealNetwork.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Weapons/SP_Weapon.h"
 
 USP_CombatComponent::USP_CombatComponent()
@@ -62,15 +63,20 @@ void USP_CombatComponent::Local_FireWeapon()
 	FHitResult Hit;
 	CurrentWeapon->WeaponTrace(Hit, TraceLength);
 	
-	Server_FireWeapon();
+	EPhysicalSurface ImpactSurfaceType = Hit.PhysMaterial.IsValid(false) 
+		? Hit.PhysMaterial->SurfaceType.GetValue() 
+		: SurfaceType1;
+	CurrentWeapon->Local_Fire(Hit.ImpactPoint, Hit.ImpactNormal, ImpactSurfaceType, true);
+	
+	Server_FireWeapon(Hit);
 }
 
-void USP_CombatComponent::Server_FireWeapon_Implementation()
+void USP_CombatComponent::Server_FireWeapon_Implementation(const FHitResult& Hit)
 {
-	Multicast_FireWeapon();
+	Multicast_FireWeapon(Hit);
 }
 
-void USP_CombatComponent::Multicast_FireWeapon_Implementation()
+void USP_CombatComponent::Multicast_FireWeapon_Implementation(const FHitResult& Hit)
 {
 	APawn* OwningPawn = Cast<APawn>(GetOwner());
 	
@@ -81,6 +87,11 @@ void USP_CombatComponent::Multicast_FireWeapon_Implementation()
 	else
 	{
 		ensure(IsValid(WeaponData));
+		
+		EPhysicalSurface ImpactSurfaceType = Hit.PhysMaterial.IsValid(false) 
+			? Hit.PhysMaterial->SurfaceType.GetValue() 
+			: SurfaceType1;
+		CurrentWeapon->Local_Fire(Hit.ImpactPoint, Hit.ImpactNormal, ImpactSurfaceType, false);
 		
 		UAnimMontage* Montage3P = WeaponData->ThirdPersonMontages.FindChecked(CurrentWeapon->GetWeaponType()).FireMontage;
 		USkeletalMeshComponent* Mesh3P = ISP_PlayerInterface::Execute_GetMesh3P(GetOwner());

@@ -7,6 +7,8 @@
 #include "GameFramework/Actor.h"
 #include "SP_Weapon.generated.h"
 
+enum EPhysicalSurface : int;
+
 UCLASS()
 class SPAWNPOINT_API ASP_Weapon : public AActor
 {
@@ -18,6 +20,7 @@ public:
 	
 	void AttachToOwningPawn() const;
 	void WeaponTrace(FHitResult& OutHitResult, float TraceLength);
+	void Local_Fire(const FVector& ImpactPoint, const FVector& ImpactNormal, TEnumAsByte<EPhysicalSurface> ImpactSurfaceType, bool bIsFirstPerson);
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|Aiming")
 	float AimFieldOfView { 65.f };
@@ -28,18 +31,21 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
+	UFUNCTION(BlueprintImplementableEvent)
+	void FireEffects(const FVector& ImpactPoint, const FVector& ImpactNormal, EPhysicalSurface ImpactSurfaceType, bool bIsFirstPerson);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpawnPoint|WeaponType")
 	FGameplayTag WeaponType;
-
-private:
+	
 	/** Weapon Mesh: 1st Person View */
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SpawnPoint|Weapon")
 	TObjectPtr<USkeletalMeshComponent> Mesh1P;
 	
 	/** Weapon Mesh: 3rd Person View */
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SpawnPoint|Weapon")
 	TObjectPtr<USkeletalMeshComponent> Mesh3P;
-	
+
+private:
 	void SetMeshVisibilities(APawn* OwningPawn) const;
 	
 public:
