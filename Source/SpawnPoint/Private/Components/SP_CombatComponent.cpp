@@ -2,8 +2,13 @@
 
 #include "Components/SP_CombatComponent.h"
 
+#include "Animation/AnimInstance.h"
+#include "Animation/AnimMontage.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Data/SP_WeaponData.h"
 #include "Engine/Engine.h"
 #include "GameFramework/Pawn.h"
+#include "Interfaces/SP_PlayerInterface.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapons/SP_Weapon.h"
 
@@ -33,12 +38,53 @@ void USP_CombatComponent::InitiateCycleWeapon()
 
 void USP_CombatComponent::InitiateFireWeaponPressed()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Initiate Fire Weapon Pressed"), false);
+	Local_FireWeapon();
 }
 
 void USP_CombatComponent::InitiateFireWeaponReleased()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Initiate Fire Weapon Released"), false);
+}
+
+void USP_CombatComponent::Local_FireWeapon()
+{
+	ensure(IsValid(WeaponData));
+	
+	UAnimMontage* Montage1P = WeaponData->FirstPersonMontages.FindChecked(CurrentWeapon->GetWeaponType()).FireMontage;
+	USkeletalMeshComponent* Mesh1P = ISP_PlayerInterface::Execute_GetMesh1P(GetOwner());
+	
+	if (IsValid(Mesh1P) && IsValid(Montage1P))
+	{
+		Mesh1P->GetAnimInstance()->Montage_Play(Montage1P);
+	}
+	
+	Server_FireWeapon();
+}
+
+void USP_CombatComponent::Server_FireWeapon_Implementation()
+{
+	Multicast_FireWeapon();
+}
+
+void USP_CombatComponent::Multicast_FireWeapon_Implementation()
+{
+	APawn* OwningPawn = Cast<APawn>(GetOwner());
+	
+	if (OwningPawn->IsLocallyControlled())
+	{
+		// TODO: Do Locally-controller stuff.
+	}
+	else
+	{
+		ensure(IsValid(WeaponData));
+		
+		UAnimMontage* Montage3P = WeaponData->ThirdPersonMontages.FindChecked(CurrentWeapon->GetWeaponType()).FireMontage;
+		USkeletalMeshComponent* Mesh3P = ISP_PlayerInterface::Execute_GetMesh3P(GetOwner());
+	
+		if (IsValid(Mesh3P) && IsValid(Montage3P))
+		{
+			Mesh3P->GetAnimInstance()->Montage_Play(Montage3P);
+		}
+	}
 }
 
 void USP_CombatComponent::InitiateReloadWeapon()
