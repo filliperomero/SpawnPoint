@@ -17,9 +17,13 @@ public:
 	virtual void OnRep_Instigator() override;
 	
 	void AttachToOwningPawn() const;
+	void WeaponTrace(FHitResult& OutHitResult, float TraceLength);
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|Aiming")
-	float AimFieldOfView { 65.0f };
+	float AimFieldOfView { 65.f };
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|Aiming")
+	float TraceRadius { 5.f };
 	
 protected:
 	virtual void BeginPlay() override;

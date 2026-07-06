@@ -38,6 +38,8 @@ public:
 	void DestroyInventory();
 	
 protected:
+	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|Weapon")
+	float TraceLength { 20000.f };
 
 private:
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_CurrentWeapon, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
