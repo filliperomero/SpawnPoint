@@ -43,6 +43,10 @@ protected:
 	float TraceLength { 20000.f };
 
 private:
+	bool bFireTriggerPressed { false };
+	FTimerHandle FireTimer;
+	void FireTimerFinished();
+	
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_CurrentWeapon, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<ASP_Weapon> CurrentWeapon;
 	

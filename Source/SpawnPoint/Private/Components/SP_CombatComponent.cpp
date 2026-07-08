@@ -2,6 +2,7 @@
 
 #include "Components/SP_CombatComponent.h"
 
+#include "TimerManager.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -39,11 +40,13 @@ void USP_CombatComponent::InitiateCycleWeapon()
 
 void USP_CombatComponent::InitiateFireWeaponPressed()
 {
+	bFireTriggerPressed = true;
 	Local_FireWeapon();
 }
 
 void USP_CombatComponent::InitiateFireWeaponReleased()
 {
+	bFireTriggerPressed = false;
 }
 
 void USP_CombatComponent::Local_FireWeapon()
@@ -68,7 +71,19 @@ void USP_CombatComponent::Local_FireWeapon()
 		: SurfaceType1;
 	CurrentWeapon->Local_Fire(Hit.ImpactPoint, Hit.ImpactNormal, ImpactSurfaceType, true);
 	
+	GetWorld()->GetTimerManager().SetTimer(FireTimer, this, &ThisClass::FireTimerFinished, CurrentWeapon->FireRate);
+	
 	Server_FireWeapon(Hit);
+}
+
+void USP_CombatComponent::FireTimerFinished()
+{
+	if (!IsValid(CurrentWeapon)) return;
+	
+	if (bFireTriggerPressed && CurrentWeapon->FireType == EFireType::Auto)
+	{
+		Local_FireWeapon();
+	}
 }
 
 void USP_CombatComponent::Server_FireWeapon_Implementation(const FHitResult& Hit)

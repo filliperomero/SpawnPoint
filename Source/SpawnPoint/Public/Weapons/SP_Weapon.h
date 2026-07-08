@@ -9,6 +9,13 @@
 
 enum EPhysicalSurface : int;
 
+UENUM(BlueprintType)
+enum class EFireType : uint8
+{
+	Auto UMETA(DisplayName = "Automatic"),
+	SemiAuto UMETA(DisplayName = "SemiAutomatic"),
+};
+
 UCLASS()
 class SPAWNPOINT_API ASP_Weapon : public AActor
 {
@@ -27,6 +34,12 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|Aiming")
 	float TraceRadius { 5.f };
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpawnPoint|FireType")
+	EFireType FireType { EFireType::SemiAuto };
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpawnPoint|FireType")
+	float FireRate { 0.1f };
 	
 protected:
 	virtual void BeginPlay() override;
