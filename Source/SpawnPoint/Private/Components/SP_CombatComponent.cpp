@@ -40,8 +40,14 @@ void USP_CombatComponent::InitiateCycleWeapon()
 
 void USP_CombatComponent::InitiateFireWeaponPressed()
 {
+	if (!IsValid(CurrentWeapon)) return;
+	
 	bFireTriggerPressed = true;
-	Local_FireWeapon();
+	
+	if (CurrentWeapon->Ammo > 0)
+	{
+		Local_FireWeapon();
+	}
 }
 
 void USP_CombatComponent::InitiateFireWeaponReleased()
@@ -80,7 +86,7 @@ void USP_CombatComponent::FireTimerFinished()
 {
 	if (!IsValid(CurrentWeapon)) return;
 	
-	if (bFireTriggerPressed && CurrentWeapon->FireType == EFireType::Auto)
+	if (bFireTriggerPressed && CurrentWeapon->FireType == EFireType::Auto && CurrentWeapon->Ammo > 0)
 	{
 		Local_FireWeapon();
 	}
@@ -88,16 +94,23 @@ void USP_CombatComponent::FireTimerFinished()
 
 void USP_CombatComponent::Server_FireWeapon_Implementation(const FHitResult& Hit)
 {
-	Multicast_FireWeapon(Hit);
+	if (!IsValid(CurrentWeapon)) return;
+	
+	if (GetNetMode() != NM_ListenServer || !Cast<APawn>(GetOwner())->IsLocallyControlled())
+	{
+		CurrentWeapon->Auth_Fire();
+	}
+	
+	Multicast_FireWeapon(Hit, CurrentWeapon->Ammo);
 }
 
-void USP_CombatComponent::Multicast_FireWeapon_Implementation(const FHitResult& Hit)
+void USP_CombatComponent::Multicast_FireWeapon_Implementation(const FHitResult& Hit, int32 AuthAmmo)
 {
 	APawn* OwningPawn = Cast<APawn>(GetOwner());
 	
 	if (OwningPawn->IsLocallyControlled())
 	{
-		// TODO: Do Locally-controller stuff.
+		CurrentWeapon->Rep_Fire(AuthAmmo);
 	}
 	else
 	{

@@ -98,26 +98,33 @@ void ASP_Weapon::WeaponTrace(FHitResult& OutHitResult, float TraceLength)
 			// That way, when we hit the sky, it does not go to the origin of the map
 			OutHitResult.ImpactPoint = End;
 		}
-		
-		/**
-		DrawDebugSphereTraceSingle(
-			GetWorld(),
-			Start,
-			End,
-			TraceRadius,
-			EDrawDebugTrace::ForDuration,
-			bHit,
-			OutHitResult,
-			FColor::Green,
-			FColor::Red,
-			5.f);
-		*/
 	}
 }
 
 void ASP_Weapon::Local_Fire(const FVector& ImpactPoint, const FVector& ImpactNormal, TEnumAsByte<EPhysicalSurface> ImpactSurfaceType, bool bIsFirstPerson)
 {
 	FireEffects(ImpactPoint, ImpactNormal, ImpactSurfaceType, bIsFirstPerson);
+	
+	if (GetInstigator()->IsLocallyControlled())
+	{
+		Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity);
+		++Sequence;
+	}
+}
+
+void ASP_Weapon::Auth_Fire()
+{
+	Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity);
+}
+
+void ASP_Weapon::Rep_Fire(int32 AuthAmmo)
+{
+	if (GetInstigator()->IsLocallyControlled())
+	{
+		Ammo = AuthAmmo;
+		--Sequence;
+		Ammo -= Sequence;
+	}
 }
 
 void ASP_Weapon::SetMeshVisibilities(APawn* OwningPawn) const

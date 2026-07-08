@@ -28,6 +28,8 @@ public:
 	void AttachToOwningPawn() const;
 	void WeaponTrace(FHitResult& OutHitResult, float TraceLength);
 	void Local_Fire(const FVector& ImpactPoint, const FVector& ImpactNormal, TEnumAsByte<EPhysicalSurface> ImpactSurfaceType, bool bIsFirstPerson);
+	void Auth_Fire();
+	void Rep_Fire(int32 AuthAmmo);
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|Aiming")
 	float AimFieldOfView { 65.f };
@@ -40,6 +42,15 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpawnPoint|FireType")
 	float FireRate { 0.1f };
+	
+	UPROPERTY(EditAnywhere, Category = "SpawnPoint|Ammo")
+	int32 Ammo { 5 };
+	
+	UPROPERTY(EditAnywhere, Category = "SpawnPoint|Ammo")
+	int32 MagCapacity { 10 };
+	
+	UPROPERTY(EditAnywhere, Category = "SpawnPoint|Ammo")
+	int32 StartingCarriedAmmo { 10 };
 	
 protected:
 	virtual void BeginPlay() override;
@@ -60,6 +71,8 @@ protected:
 
 private:
 	void SetMeshVisibilities(APawn* OwningPawn) const;
+	
+	int32 Sequence { 0 };
 	
 public:
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
