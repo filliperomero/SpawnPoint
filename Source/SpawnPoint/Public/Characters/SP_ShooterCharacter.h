@@ -8,10 +8,13 @@
 #include "Types/SP_Types.h"
 #include "SP_ShooterCharacter.generated.h"
 
+class ASP_Weapon;
 class UInputAction;
 class USP_CombatComponent;
 class UCameraComponent;
 class USpringArmComponent;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWeaponFirstReplicated, ASP_Weapon*, Weapon);
 
 UCLASS()
 class SPAWNPOINT_API ASP_ShooterCharacter : public ACharacter, public ISP_PlayerInterface
@@ -39,7 +42,11 @@ public:
 	virtual FName GetWeaponAttachPoint_Implementation(const FGameplayTag& WeaponType) const override;
 	virtual USkeletalMeshComponent* GetMesh1P_Implementation() const override;
 	virtual USkeletalMeshComponent* GetMesh3P_Implementation() const override;
+	virtual void WeaponReplicated_Implementation() override;
 	/** ~PlayerInterface */
+	
+	UPROPERTY(BlueprintAssignable)
+	FWeaponFirstReplicated OnWeaponFirstReplicated;
 	
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
@@ -72,6 +79,8 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = "SpawnPoint|TurnInPlace", meta=(AllowPrivateAccess="true"))
 	ETurningInPlace TurningStatus { ETurningInPlace::NotTurning };
 	
+	bool bWeaponFirstReplicated { false };
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SpawnPoint|Combat", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<USP_CombatComponent> CombatComponent;
 	
@@ -96,4 +105,7 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "SpawnPoint|Input")
 	TObjectPtr<UInputAction> AimWeaponAction;
+	
+public:
+	bool HasWeaponFirstReplicated() const { return bWeaponFirstReplicated; }
 };

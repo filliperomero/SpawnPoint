@@ -202,6 +202,7 @@ void USP_CombatComponent::OnRep_CurrentWeapon(ASP_Weapon* PrevWeapon)
 	if (!IsValid(CurrentWeapon)) return;
 	
 	CurrentWeapon->AttachToOwningPawn();
+	ISP_PlayerInterface::Execute_WeaponReplicated(GetOwner());
 }
 
 ASP_Weapon* USP_CombatComponent::SpawnWeapon(TSubclassOf<ASP_Weapon> WeaponClass) const

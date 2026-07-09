@@ -210,6 +210,16 @@ USkeletalMeshComponent* ASP_ShooterCharacter::GetMesh3P_Implementation() const
 	return GetMesh();
 }
 
+void ASP_ShooterCharacter::WeaponReplicated_Implementation()
+{
+	if (!bWeaponFirstReplicated)
+	{
+		bWeaponFirstReplicated = true;
+		
+		OnWeaponFirstReplicated.Broadcast(CombatComponent->GetCurrentWeapon());
+	}
+}
+
 void ASP_ShooterCharacter::InputCycleWeapon()
 {
 	CombatComponent->InitiateCycleWeapon();
