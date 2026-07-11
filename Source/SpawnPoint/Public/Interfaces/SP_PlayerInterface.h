@@ -6,6 +6,7 @@
 #include "UObject/Interface.h"
 #include "SP_PlayerInterface.generated.h"
 
+class ASP_Weapon;
 struct FGameplayTag;
 
 UINTERFACE()
@@ -33,4 +34,7 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void WeaponReplicated();
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	ASP_Weapon* GetCurrentWeapon();
 };

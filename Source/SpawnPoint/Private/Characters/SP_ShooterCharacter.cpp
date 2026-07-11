@@ -64,6 +64,16 @@ void ASP_ShooterCharacter::BeginDestroy()
 	}
 }
 
+void ASP_ShooterCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	
+	if (IsValid(CombatComponent))
+	{
+		CombatComponent->InitializeWeaponWidgets();
+	}
+}
+
 FRotator ASP_ShooterCharacter::GetFixedAimRotation() const
 {
 	FRotator AimRotation = GetBaseAimRotation();
@@ -218,6 +228,11 @@ void ASP_ShooterCharacter::WeaponReplicated_Implementation()
 		
 		OnWeaponFirstReplicated.Broadcast(CombatComponent->GetCurrentWeapon());
 	}
+}
+
+ASP_Weapon* ASP_ShooterCharacter::GetCurrentWeapon_Implementation()
+{
+	return CombatComponent->GetCurrentWeapon();
 }
 
 void ASP_ShooterCharacter::InputCycleWeapon()

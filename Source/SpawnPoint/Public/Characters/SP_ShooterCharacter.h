@@ -28,6 +28,7 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void BeginPlay() override;
 	virtual void BeginDestroy() override;
+	virtual void OnRep_PlayerState() override;
 	
 	UFUNCTION(BlueprintCallable)
 	FRotator GetFixedAimRotation() const;
@@ -43,6 +44,7 @@ public:
 	virtual USkeletalMeshComponent* GetMesh1P_Implementation() const override;
 	virtual USkeletalMeshComponent* GetMesh3P_Implementation() const override;
 	virtual void WeaponReplicated_Implementation() override;
+	virtual ASP_Weapon* GetCurrentWeapon_Implementation() override;
 	/** ~PlayerInterface */
 	
 	UPROPERTY(BlueprintAssignable)

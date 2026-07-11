@@ -181,6 +181,7 @@ void USP_CombatComponent::SpawnInventory()
 	if (Inventory.Num() > 0)
 	{
 		Equip(Inventory[0]);
+		InitializeWeaponWidgets();
 	}
 }
 
@@ -197,12 +198,22 @@ void USP_CombatComponent::DestroyInventory()
 	Inventory.Empty();
 }
 
+void USP_CombatComponent::InitializeWeaponWidgets()
+{
+	if (IsValid(CurrentWeapon))
+	{
+		OnReticleChanged.Broadcast(CurrentWeapon->GetReticleDynamicMaterialInstance());
+		OnAmmoCounterChanged.Broadcast(CurrentWeapon->GetAmmoCounterDynamicMaterialInstance(), CurrentWeapon->Ammo, CurrentWeapon->MagCapacity);
+	}
+}
+
 void USP_CombatComponent::OnRep_CurrentWeapon(ASP_Weapon* PrevWeapon)
 {
 	if (!IsValid(CurrentWeapon)) return;
 	
 	CurrentWeapon->AttachToOwningPawn();
 	ISP_PlayerInterface::Execute_WeaponReplicated(GetOwner());
+	InitializeWeaponWidgets();
 }
 
 ASP_Weapon* USP_CombatComponent::SpawnWeapon(TSubclassOf<ASP_Weapon> WeaponClass) const

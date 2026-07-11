@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "SP_Weapon.generated.h"
 
+class UMaterialInstanceDynamic;
 enum EPhysicalSurface : int;
 
 UENUM(BlueprintType)
@@ -30,6 +31,9 @@ public:
 	void Local_Fire(const FVector& ImpactPoint, const FVector& ImpactNormal, TEnumAsByte<EPhysicalSurface> ImpactSurfaceType, bool bIsFirstPerson);
 	void Auth_Fire();
 	void Rep_Fire(int32 AuthAmmo);
+	
+	UMaterialInstanceDynamic* GetReticleDynamicMaterialInstance();
+	UMaterialInstanceDynamic* GetAmmoCounterDynamicMaterialInstance();
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|Aiming")
 	float AimFieldOfView { 65.f };
@@ -73,6 +77,18 @@ private:
 	void SetMeshVisibilities(APawn* OwningPawn) const;
 	
 	int32 Sequence { 0 };
+	
+	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|Weapon")
+	TObjectPtr<UMaterialInterface> ReticleMaterial;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|Weapon")
+	TObjectPtr<UMaterialInterface> AmmoCounterMaterial;
+	
+	UPROPERTY()
+	TObjectPtr<UMaterialInstanceDynamic> DynMatInst_Reticle;
+	
+	UPROPERTY()
+	TObjectPtr<UMaterialInstanceDynamic> DynMatInst_AmmoCounter;
 	
 public:
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }

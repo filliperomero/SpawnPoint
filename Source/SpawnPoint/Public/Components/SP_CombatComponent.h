@@ -4,11 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameFramework/Actor.h"
 #include "SP_CombatComponent.generated.h"
 
+class UMaterialInstanceDynamic;
 struct FHitResult;
 class ASP_Weapon;
 class USP_WeaponData;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FReticleChanged, UMaterialInstanceDynamic*, ReticleDynMatInst);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FAmmoCounterChanged, UMaterialInstanceDynamic*, AmmoCounterDynMatInst, int32, RoundsCurrent, int32, RoundsMax);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SPAWNPOINT_API USP_CombatComponent : public UActorComponent
@@ -19,6 +24,9 @@ public:
 	USP_CombatComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	
+	UFUNCTION(BlueprintPure, Category = "SpawnPoint|Combat")
+	static USP_CombatComponent* FindCombatComponent(const AActor* Actor) { return IsValid(Actor) ? Actor->FindComponentByClass<USP_CombatComponent>() : nullptr; }
 	
 	/* Cycle to the next weapon in the inventory */
 	void InitiateCycleWeapon();
@@ -37,6 +45,13 @@ public:
 	void Equip(ASP_Weapon* WeaponToEquip);
 	void SpawnInventory();
 	void DestroyInventory();
+	void InitializeWeaponWidgets();
+	
+	UPROPERTY(BlueprintAssignable)
+	FReticleChanged OnReticleChanged;
+	
+	UPROPERTY(BlueprintAssignable)
+	FAmmoCounterChanged OnAmmoCounterChanged;
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|Weapon")

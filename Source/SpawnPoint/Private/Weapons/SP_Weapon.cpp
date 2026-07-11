@@ -7,6 +7,7 @@
 #include "GameFramework/Pawn.h"
 #include "Interfaces/SP_PlayerInterface.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "SpawnPoint/SpawnPoint.h"
 
 ASP_Weapon::ASP_Weapon()
@@ -125,6 +126,30 @@ void ASP_Weapon::Rep_Fire(int32 AuthAmmo)
 		--Sequence;
 		Ammo -= Sequence;
 	}
+}
+
+UMaterialInstanceDynamic* ASP_Weapon::GetReticleDynamicMaterialInstance()
+{
+	checkf(ReticleMaterial, TEXT("Assign Reticle Material in %s"), *GetName());
+	
+	if (!IsValid(DynMatInst_Reticle))
+	{
+		DynMatInst_Reticle = UMaterialInstanceDynamic::Create(ReticleMaterial, this);
+	}
+	
+	return DynMatInst_Reticle;
+}
+
+UMaterialInstanceDynamic* ASP_Weapon::GetAmmoCounterDynamicMaterialInstance()
+{
+	checkf(AmmoCounterMaterial, TEXT("Assign Ammo Counter Material in %s"), *GetName());
+	
+	if (!IsValid(DynMatInst_AmmoCounter))
+	{
+		DynMatInst_AmmoCounter = UMaterialInstanceDynamic::Create(AmmoCounterMaterial, this);
+	}
+	
+	return DynMatInst_AmmoCounter;
 }
 
 void ASP_Weapon::SetMeshVisibilities(APawn* OwningPawn) const
