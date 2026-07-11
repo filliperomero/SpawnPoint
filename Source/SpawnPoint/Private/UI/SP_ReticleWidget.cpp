@@ -13,6 +13,9 @@ void USP_ReticleWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 	
+	Image_Reticle->SetRenderOpacity(0.f);
+	Image_AmmoCounter->SetRenderOpacity(0.f);
+	
 	/** 
 	 * The code below is to solve any possible race condition since we cannot promise
 	 * the order that it will happen. Maybe once we possess, the weapon will be valid already (and already replicated), maybe not.
@@ -67,6 +70,9 @@ void USP_ReticleWidget::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
 	USP_CombatComponent* NewPawnCombat = USP_CombatComponent::FindCombatComponent(NewPawn);
 	if (IsValid(NewPawnCombat))
 	{
+		Image_Reticle->SetRenderOpacity(1.f);
+		Image_AmmoCounter->SetRenderOpacity(1.f);
+		
 		NewPawnCombat->OnReticleChanged.AddDynamic(this, &ThisClass::OnReticleChanged);
 		NewPawnCombat->OnAmmoCounterChanged.AddDynamic(this, &ThisClass::OnAmmoCounterChanged);
 	}
