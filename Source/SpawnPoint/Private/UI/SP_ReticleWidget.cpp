@@ -9,6 +9,12 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Weapons/SP_Weapon.h"
 
+namespace Ammo
+{
+	const FName Rounds_Current = FName("Rounds_Current");
+	const FName Rounds_Max = FName("Rounds_Max");
+}
+
 void USP_ReticleWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -99,6 +105,8 @@ void USP_ReticleWidget::OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMat
 void USP_ReticleWidget::OnAmmoCounterChanged(UMaterialInstanceDynamic* AmmoCounterDynMatInst, int32 RoundsCurrent, int32 RoundsMax)
 {
 	CurrentAmmoCounter_DynMatInst = AmmoCounterDynMatInst; 
+	CurrentAmmoCounter_DynMatInst->SetScalarParameterValue(Ammo::Rounds_Current, RoundsCurrent);
+	CurrentAmmoCounter_DynMatInst->SetScalarParameterValue(Ammo::Rounds_Max, RoundsMax);
 	
 	FSlateBrush Brush;
 	Brush.SetResourceObject(AmmoCounterDynMatInst);
