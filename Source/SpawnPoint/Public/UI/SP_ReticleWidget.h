@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Types/SP_Types.h"
 #include "SP_ReticleWidget.generated.h"
 
 class ASP_Weapon;
@@ -27,6 +28,11 @@ public:
 private:
 	TWeakObjectPtr<UMaterialInstanceDynamic> CurrentReticle_DynMatInst;
 	TWeakObjectPtr<UMaterialInstanceDynamic> CurrentAmmoCounter_DynMatInst;
+	FReticleParams CurrentReticleParams;
+	float BaseCornerScaleFactor { 0.f };
+	float BaseShapeCutFactor { 0.f };
+	float _BaseCornerScaleFactor_RoundFired { 0.f };
+	float _BaseShapeCutFactor_RoundFired { 0.f };
 	
 	UFUNCTION()
 	void OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn);
@@ -35,7 +41,7 @@ private:
 	void OnWeaponFirstReplicated(ASP_Weapon* Weapon);
 	
 	UFUNCTION()
-	void OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMatInst);
+	void OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMatInst, const FReticleParams& ReticleParams);
 	
 	UFUNCTION()
 	void OnAmmoCounterChanged(UMaterialInstanceDynamic* AmmoCounterDynMatInst, int32 RoundsCurrent, int32 RoundsMax);

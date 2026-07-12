@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "GameFramework/Actor.h"
+#include "Types/SP_Types.h"
 #include "SP_Weapon.generated.h"
 
 class UMaterialInstanceDynamic;
@@ -55,6 +56,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category = "SpawnPoint|Ammo")
 	int32 StartingCarriedAmmo { 10 };
+	
+	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|Reticle")
+	FReticleParams ReticleParams;
 	
 protected:
 	virtual void BeginPlay() override;
