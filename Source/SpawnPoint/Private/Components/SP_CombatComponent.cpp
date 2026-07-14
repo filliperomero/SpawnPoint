@@ -157,6 +157,7 @@ void USP_CombatComponent::Server_Aim_Implementation(bool bPressed)
 void USP_CombatComponent::Local_Aim(bool bPressed)
 {
 	bAiming = bPressed;
+	OnAimingStatusChanged.Broadcast(bAiming);
 }
 
 void USP_CombatComponent::Equip(ASP_Weapon* WeaponToEquip)

@@ -33,6 +33,9 @@ private:
 	float BaseShapeCutFactor { 0.f };
 	float _BaseCornerScaleFactor_RoundFired { 0.f };
 	float _BaseShapeCutFactor_RoundFired { 0.f };
+	float _BaseCornerScaleFactor_Aiming { 0.f };
+	float _BaseShapeCutFactor_Aiming { 0.f };
+	bool bAiming { false };
 	
 	UFUNCTION()
 	void OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn);
@@ -48,4 +51,7 @@ private:
 	
 	UFUNCTION()
 	void OnRoundFired(int32 RoundsCurrent, int32 RoundsMax);
+	
+	UFUNCTION()
+	void OnAimingStatusChanged(bool bIsAiming);
 };
