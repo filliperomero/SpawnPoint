@@ -10,8 +10,10 @@
 #include "Engine/Engine.h"
 #include "GameFramework/Pawn.h"
 #include "Interfaces/SP_PlayerInterface.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
+#include "SpawnPoint/SpawnPoint.h"
 #include "Weapons/SP_Weapon.h"
 
 USP_CombatComponent::USP_CombatComponent()
@@ -22,6 +24,40 @@ USP_CombatComponent::USP_CombatComponent()
 void USP_CombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	
+	APawn* OwningPawn = Cast<APawn>(GetOwner());
+	if (!IsValid(OwningPawn) || !OwningPawn->IsLocallyControlled()) return;
+	
+	APlayerController* PC = Cast<APlayerController>(OwningPawn->GetController());
+	if (!IsValid(PC)) return;
+	
+	FVector EyesWorldLocation;
+	FRotator EyesRotation;
+	PC->GetActorEyesViewPoint(EyesWorldLocation, EyesRotation);
+	const FVector EyesWorldDirection = UKismetMathLibrary::GetForwardVector(EyesRotation);
+	
+	const FVector Start = EyesWorldLocation;
+	const FVector End = Start + EyesWorldDirection * TraceLength;
+	
+	FHitResult Hit;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(GetOwner());
+	
+	FCollisionResponseParams ResponseParams;
+	ResponseParams.CollisionResponse.SetAllChannels(ECR_Ignore);
+	ResponseParams.CollisionResponse.SetResponse(ECC_Pawn, ECR_Block);
+	ResponseParams.CollisionResponse.SetResponse(ECC_PhysicsBody, ECR_Block);
+	
+	GetWorld()->LineTraceSingleByChannel(Hit, Start, End, SpawnPointTraceChannels::ECC_Weapon, QueryParams, ResponseParams);
+	
+	const bool bHitPlayer = IsValid(Hit.GetActor()) && Hit.GetActor()->Implements<USP_PlayerInterface>();
+	
+	if (bHitPlayer != bHitPlayerLastFrame)
+	{
+		OnTargetingPlayerStatusChanged.Broadcast(bHitPlayer);
+	}
+	
+	bHitPlayerLastFrame = bHitPlayer;
 }
 
 void USP_CombatComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const

@@ -19,6 +19,7 @@ namespace Reticle
 {
 	const FName RoundedCornerScale = FName("RoundedCornerScale");
 	const FName ShapeCutThickness = FName("ShapeCutThickness");
+	const FName Inner_RGBA = FName("Inner_RGBA");
 }
 
 void USP_ReticleWidget::NativeOnInitialized()
@@ -96,6 +97,7 @@ void USP_ReticleWidget::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
 		OldPawnCombat->OnAmmoCounterChanged.RemoveDynamic(this, &ThisClass::OnAmmoCounterChanged);
 		OldPawnCombat->OnRoundFired.RemoveDynamic(this, &ThisClass::OnRoundFired);
 		OldPawnCombat->OnAimingStatusChanged.RemoveDynamic(this, &ThisClass::OnAimingStatusChanged);
+		OldPawnCombat->OnTargetingPlayerStatusChanged.RemoveDynamic(this, &ThisClass::OnTargetingPlayerStatusChanged);
 	}
 	
 	USP_CombatComponent* NewPawnCombat = USP_CombatComponent::FindCombatComponent(NewPawn);
@@ -108,6 +110,7 @@ void USP_ReticleWidget::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
 		NewPawnCombat->OnAmmoCounterChanged.AddDynamic(this, &ThisClass::OnAmmoCounterChanged);
 		NewPawnCombat->OnRoundFired.AddDynamic(this, &ThisClass::OnRoundFired);
 		NewPawnCombat->OnAimingStatusChanged.AddDynamic(this, &ThisClass::OnAimingStatusChanged);
+		NewPawnCombat->OnTargetingPlayerStatusChanged.AddDynamic(this, &ThisClass::OnTargetingPlayerStatusChanged);
 	}
 }
 
@@ -159,4 +162,14 @@ void USP_ReticleWidget::OnRoundFired(int32 RoundsCurrent, int32 RoundsMax)
 void USP_ReticleWidget::OnAimingStatusChanged(bool bIsAiming)
 {
 	bAiming = bIsAiming;
+}
+
+void USP_ReticleWidget::OnTargetingPlayerStatusChanged(bool bTargeting)
+{
+	bTargetingPlayer = bTargeting;
+	if (CurrentReticle_DynMatInst.IsValid())
+	{
+		FLinearColor ReticleColor = bTargetingPlayer ? FLinearColor::Red : FLinearColor::White;
+		CurrentReticle_DynMatInst->SetVectorParameterValue(Reticle::Inner_RGBA, ReticleColor);
+	}
 }
