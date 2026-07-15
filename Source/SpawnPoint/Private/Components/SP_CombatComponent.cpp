@@ -50,7 +50,7 @@ void USP_CombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	
 	GetWorld()->LineTraceSingleByChannel(Hit, Start, End, SpawnPointTraceChannels::ECC_Weapon, QueryParams, ResponseParams);
 	
-	const bool bHitPlayer = IsValid(Hit.GetActor()) && Hit.GetActor()->Implements<USP_PlayerInterface>();
+	bHitPlayer = IsValid(Hit.GetActor()) && Hit.GetActor()->Implements<USP_PlayerInterface>();
 	
 	if (bHitPlayer != bHitPlayerLastFrame)
 	{
@@ -240,7 +240,7 @@ void USP_CombatComponent::InitializeWeaponWidgets()
 {
 	if (IsValid(CurrentWeapon))
 	{
-		OnReticleChanged.Broadcast(CurrentWeapon->GetReticleDynamicMaterialInstance(), CurrentWeapon->ReticleParams);
+		OnReticleChanged.Broadcast(CurrentWeapon->GetReticleDynamicMaterialInstance(), CurrentWeapon->ReticleParams, bHitPlayer);
 		OnAmmoCounterChanged.Broadcast(CurrentWeapon->GetAmmoCounterDynamicMaterialInstance(), CurrentWeapon->Ammo, CurrentWeapon->MagCapacity);
 	}
 }

@@ -35,6 +35,7 @@ private:
 	float _BaseShapeCutFactor_RoundFired { 0.f };
 	float _BaseCornerScaleFactor_Aiming { 0.f };
 	float _BaseShapeCutFactor_Aiming { 0.f };
+	float _BaseCornerScaleFactor_TargetingPlayer { 0.f };
 	bool bAiming { false };
 	bool bTargetingPlayer { false };
 	
@@ -45,7 +46,7 @@ private:
 	void OnWeaponFirstReplicated(ASP_Weapon* Weapon);
 	
 	UFUNCTION()
-	void OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMatInst, const FReticleParams& ReticleParams);
+	void OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMatInst, const FReticleParams& ReticleParams, bool bTargetingPlayer);
 	
 	UFUNCTION()
 	void OnAmmoCounterChanged(UMaterialInstanceDynamic* AmmoCounterDynMatInst, int32 RoundsCurrent, int32 RoundsMax);
