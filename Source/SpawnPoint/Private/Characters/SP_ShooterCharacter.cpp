@@ -226,7 +226,7 @@ void ASP_ShooterCharacter::WeaponReplicated_Implementation()
 	{
 		bWeaponFirstReplicated = true;
 		
-		OnWeaponFirstReplicated.Broadcast(CombatComponent->GetCurrentWeapon());
+		OnWeaponFirstReplicated.Broadcast(CombatComponent->GetCurrentWeapon(), CombatComponent->IsHittingPlayer());
 	}
 }
 

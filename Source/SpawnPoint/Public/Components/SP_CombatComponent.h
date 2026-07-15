@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Components/ActorComponent.h"
 #include "GameFramework/Actor.h"
 #include "Types/SP_Types.h"
@@ -18,6 +19,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FAmmoCounterChanged, UMaterialIns
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FRoundFired, int32, RoundsCurrent, int32, RoundsMax);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAimingStatusChanged, bool, bIsAiming);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTargetingPlayerStatusChanged, bool, bTargetingPlayer);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCurrentReserveAmmoChanged, int32, RoundsInReserve, int32, RoundsInWeapon);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SPAWNPOINT_API USP_CombatComponent : public UActorComponent
@@ -46,6 +48,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Replicated)
 	bool bAiming { false };
 	
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_CurrentReserveAmmo)
+	int32 CurrentReserveAmmo { 0 };
+	
 	void Equip(ASP_Weapon* WeaponToEquip);
 	void SpawnInventory();
 	void DestroyInventory();
@@ -66,11 +71,15 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FTargetingPlayerStatusChanged OnTargetingPlayerStatusChanged;
 	
+	UPROPERTY(BlueprintAssignable)
+	FCurrentReserveAmmoChanged OnCurrentReserveAmmoChanged;
+	
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|Weapon")
 	float TraceLength { 20000.f };
 
 private:
+	TMap<FGameplayTag, int32> ReserveAmmo;
 	bool bHitPlayerLastFrame { false };
 	bool bHitPlayer { false };
 	bool bFireTriggerPressed { false };
@@ -82,6 +91,9 @@ private:
 	
 	UFUNCTION()
 	void OnRep_CurrentWeapon(ASP_Weapon* PrevWeapon);
+	
+	UFUNCTION()
+	void OnRep_CurrentReserveAmmo();
 	
 	UPROPERTY(Transient, Replicated)
 	TArray<ASP_Weapon*> Inventory;
@@ -104,5 +116,6 @@ private:
 	void Local_FireWeapon();
 	
 public:
-	ASP_Weapon* GetCurrentWeapon() { return CurrentWeapon; };
+	ASP_Weapon* GetCurrentWeapon() { return CurrentWeapon; }
+	bool IsHittingPlayer() const { return bHitPlayer;}
 };

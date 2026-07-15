@@ -38,6 +38,9 @@ void USP_ReticleWidget::NativeOnInitialized()
 	
 	ASP_ShooterCharacter* ShooterCharacter = Cast<ASP_ShooterCharacter>(GetOwningPlayer()->GetPawn());
 	if (!IsValid(ShooterCharacter)) return;
+	USP_CombatComponent* Combat = USP_CombatComponent::FindCombatComponent(ShooterCharacter);
+	if (!IsValid(Combat)) return;
+	
 	
 	OnPossessedPawnChanged(nullptr, ShooterCharacter);
 	
@@ -46,7 +49,7 @@ void USP_ReticleWidget::NativeOnInitialized()
 		ASP_Weapon* Weapon = ISP_PlayerInterface::Execute_GetCurrentWeapon(ShooterCharacter);
 		if (IsValid(Weapon))
 		{
-			OnReticleChanged(Weapon->GetReticleDynamicMaterialInstance(), Weapon->ReticleParams);
+			OnReticleChanged(Weapon->GetReticleDynamicMaterialInstance(), Weapon->ReticleParams, Combat->IsHittingPlayer());
 			OnAmmoCounterChanged(Weapon->GetAmmoCounterDynamicMaterialInstance(), Weapon->Ammo, Weapon->MagCapacity);
 		}
 	}
@@ -60,7 +63,7 @@ void USP_ReticleWidget::NativeOnInitialized()
 		ASP_Weapon* Weapon = ISP_PlayerInterface::Execute_GetCurrentWeapon(ShooterCharacter);
 		if (IsValid(Weapon))
 		{
-			OnReticleChanged(Weapon->GetReticleDynamicMaterialInstance(), Weapon->ReticleParams);
+			OnReticleChanged(Weapon->GetReticleDynamicMaterialInstance(), Weapon->ReticleParams, Combat->IsHittingPlayer());
 			OnAmmoCounterChanged(Weapon->GetAmmoCounterDynamicMaterialInstance(), Weapon->Ammo, Weapon->MagCapacity);
 		}
 	}
@@ -116,9 +119,9 @@ void USP_ReticleWidget::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
 	}
 }
 
-void USP_ReticleWidget::OnWeaponFirstReplicated(ASP_Weapon* Weapon)
+void USP_ReticleWidget::OnWeaponFirstReplicated(ASP_Weapon* Weapon, bool bTargetingPlayer)
 {
-	OnReticleChanged(Weapon->GetReticleDynamicMaterialInstance(), Weapon->ReticleParams);
+	OnReticleChanged(Weapon->GetReticleDynamicMaterialInstance(), Weapon->ReticleParams, bTargetingPlayer);
 	OnAmmoCounterChanged(Weapon->GetAmmoCounterDynamicMaterialInstance(), Weapon->Ammo, Weapon->MagCapacity);
 }
 

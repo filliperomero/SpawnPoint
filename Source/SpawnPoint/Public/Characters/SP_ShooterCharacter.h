@@ -14,7 +14,7 @@ class USP_CombatComponent;
 class UCameraComponent;
 class USpringArmComponent;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWeaponFirstReplicated, ASP_Weapon*, Weapon);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FWeaponFirstReplicated, ASP_Weapon*, Weapon, bool, bTargetingPlayer);
 
 UCLASS()
 class SPAWNPOINT_API ASP_ShooterCharacter : public ACharacter, public ISP_PlayerInterface

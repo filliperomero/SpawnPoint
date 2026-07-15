@@ -67,6 +67,7 @@ void USP_CombatComponent::GetLifetimeReplicatedProps(TArray<class FLifetimePrope
 	DOREPLIFETIME(ThisClass, Inventory);
 	DOREPLIFETIME(ThisClass, CurrentWeapon);
 	DOREPLIFETIME_CONDITION(ThisClass, bAiming, COND_SkipOwner);
+	DOREPLIFETIME_CONDITION(ThisClass, CurrentReserveAmmo, COND_OwnerOnly);
 }
 
 void USP_CombatComponent::InitiateCycleWeapon()
@@ -200,6 +201,9 @@ void USP_CombatComponent::Equip(ASP_Weapon* WeaponToEquip)
 {
 	CurrentWeapon = WeaponToEquip;
 	CurrentWeapon->AttachToOwningPawn();
+	
+	CurrentReserveAmmo = ReserveAmmo.FindChecked(CurrentWeapon->GetWeaponType());
+	OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo);
 }
 
 void USP_CombatComponent::SpawnInventory()
@@ -213,6 +217,7 @@ void USP_CombatComponent::SpawnInventory()
 		if (IsValid(NewWeapon))
 		{
 			Inventory.AddUnique(NewWeapon);
+			ReserveAmmo.Add(NewWeapon->GetWeaponType(), NewWeapon->StartingCarriedAmmo);
 		}
 	}
 	
@@ -252,6 +257,13 @@ void USP_CombatComponent::OnRep_CurrentWeapon(ASP_Weapon* PrevWeapon)
 	CurrentWeapon->AttachToOwningPawn();
 	ISP_PlayerInterface::Execute_WeaponReplicated(GetOwner());
 	InitializeWeaponWidgets();
+}
+
+void USP_CombatComponent::OnRep_CurrentReserveAmmo()
+{
+	if (!IsValid(CurrentWeapon)) return;
+	
+	OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo);
 }
 
 ASP_Weapon* USP_CombatComponent::SpawnWeapon(TSubclassOf<ASP_Weapon> WeaponClass) const
