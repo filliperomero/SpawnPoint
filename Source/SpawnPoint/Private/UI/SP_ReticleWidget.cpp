@@ -119,13 +119,13 @@ void USP_ReticleWidget::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
 	}
 }
 
-void USP_ReticleWidget::OnWeaponFirstReplicated(ASP_Weapon* Weapon, bool bTargetingPlayer)
+void USP_ReticleWidget::OnWeaponFirstReplicated(ASP_Weapon* Weapon, bool bTargeting)
 {
-	OnReticleChanged(Weapon->GetReticleDynamicMaterialInstance(), Weapon->ReticleParams, bTargetingPlayer);
+	OnReticleChanged(Weapon->GetReticleDynamicMaterialInstance(), Weapon->ReticleParams, bTargeting);
 	OnAmmoCounterChanged(Weapon->GetAmmoCounterDynamicMaterialInstance(), Weapon->Ammo, Weapon->MagCapacity);
 }
 
-void USP_ReticleWidget::OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMatInst, const FReticleParams& ReticleParams, bool bTargetingPlayer)
+void USP_ReticleWidget::OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMatInst, const FReticleParams& ReticleParams, bool bTargeting)
 {
 	CurrentReticleParams = ReticleParams;
 	CurrentReticle_DynMatInst = ReticleDynMatInst;
@@ -137,7 +137,7 @@ void USP_ReticleWidget::OnReticleChanged(UMaterialInstanceDynamic* ReticleDynMat
 		Image_Reticle->SetBrush(Brush);
 	}
 	
-	OnTargetingPlayerStatusChanged(bTargetingPlayer);
+	OnTargetingPlayerStatusChanged(bTargeting);
 }
 
 void USP_ReticleWidget::OnAmmoCounterChanged(UMaterialInstanceDynamic* AmmoCounterDynMatInst, int32 RoundsCurrent, int32 RoundsMax)
