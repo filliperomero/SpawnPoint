@@ -154,7 +154,7 @@ void USP_ReticleWidget::OnAmmoCounterChanged(UMaterialInstanceDynamic* AmmoCount
 	}
 }
 
-void USP_ReticleWidget::OnRoundFired(int32 RoundsCurrent, int32 RoundsMax)
+void USP_ReticleWidget::OnRoundFired(int32 RoundsCurrent, int32 RoundsMax, int32 RoundsInReserve)
 {
 	_BaseCornerScaleFactor_RoundFired += CurrentReticleParams.ScaleFactor_RoundFired;
 	_BaseShapeCutFactor_RoundFired += CurrentReticleParams.ShapeCutFactor_RoundFired;

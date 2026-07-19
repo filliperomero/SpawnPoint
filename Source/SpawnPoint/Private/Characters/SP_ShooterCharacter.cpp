@@ -235,6 +235,11 @@ ASP_Weapon* ASP_ShooterCharacter::GetCurrentWeapon_Implementation()
 	return CombatComponent->GetCurrentWeapon();
 }
 
+int32 ASP_ShooterCharacter::GetReserveAmmo_Implementation() const
+{
+	return CombatComponent->CurrentReserveAmmo;
+}
+
 void ASP_ShooterCharacter::InputCycleWeapon()
 {
 	CombatComponent->InitiateCycleWeapon();
