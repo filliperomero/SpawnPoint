@@ -44,6 +44,16 @@ void USP_ReserveAmmoWidget::NativeOnInitialized()
 	{
 		ShooterCharacter->OnWeaponFirstReplicated.AddDynamic(this, &ThisClass::OnWeaponFirstReplicated);
 	}
+	
+	// In this case the server will not replicate the weapon and we need to do this to have the correct value
+	if (ShooterCharacter->HasAuthority())
+	{
+		ASP_Weapon* Weapon = ISP_PlayerInterface::Execute_GetCurrentWeapon(ShooterCharacter);
+		if (IsValid(Weapon))
+		{
+			OnCurrentReserveAmmoChanged(ISP_PlayerInterface::Execute_GetReserveAmmo(ShooterCharacter), Weapon->Ammo);
+		}
+	}
 }
 
 void USP_ReserveAmmoWidget::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
