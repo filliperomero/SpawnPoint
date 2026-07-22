@@ -7,6 +7,7 @@
 #include "Components/TextBlock.h"
 #include "Components/SP_CombatComponent.h"
 #include "Interfaces/SP_PlayerInterface.h"
+#include "Materials/MaterialInterface.h"
 #include "Weapons/SP_Weapon.h"
 
 class ASP_ShooterCharacter;
@@ -37,7 +38,7 @@ void USP_ReserveAmmoWidget::NativeOnInitialized()
 		ASP_Weapon* Weapon = ISP_PlayerInterface::Execute_GetCurrentWeapon(ShooterCharacter);
 		if (IsValid(Weapon))
 		{
-			OnCurrentReserveAmmoChanged(ISP_PlayerInterface::Execute_GetReserveAmmo(ShooterCharacter), Weapon->Ammo);
+			OnCurrentReserveAmmoChanged(ISP_PlayerInterface::Execute_GetReserveAmmo(ShooterCharacter), Weapon->Ammo, Weapon->WeaponIcon);
 		}
 	}
 	else
@@ -51,7 +52,7 @@ void USP_ReserveAmmoWidget::NativeOnInitialized()
 		ASP_Weapon* Weapon = ISP_PlayerInterface::Execute_GetCurrentWeapon(ShooterCharacter);
 		if (IsValid(Weapon))
 		{
-			OnCurrentReserveAmmoChanged(ISP_PlayerInterface::Execute_GetReserveAmmo(ShooterCharacter), Weapon->Ammo);
+			OnCurrentReserveAmmoChanged(ISP_PlayerInterface::Execute_GetReserveAmmo(ShooterCharacter), Weapon->Ammo, Weapon->WeaponIcon);
 		}
 	}
 }
@@ -76,8 +77,16 @@ void USP_ReserveAmmoWidget::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPaw
 	}
 }
 
-void USP_ReserveAmmoWidget::OnCurrentReserveAmmoChanged(int32 RoundsInReserve, int32 RoundsInWeapon)
+void USP_ReserveAmmoWidget::OnCurrentReserveAmmoChanged(int32 RoundsInReserve, int32 RoundsInWeapon, UMaterialInterface* WeaponIconMaterial)
 {
+	if (IsValid(WeaponIconMaterial) && IsValid(Image_WeaponIcon))
+	{
+		FSlateBrush Brush;
+		Brush.SetResourceObject(WeaponIconMaterial);
+		
+		Image_WeaponIcon->SetBrush(Brush);
+	}
+	
 	if (IsValid(Text_Ammo))
 	{
 		const FText AmmoText = FText::Format(NSLOCTEXT("AmmoText", "AmmoKey", "{0}/{1}"), RoundsInWeapon, RoundsInReserve);
@@ -98,5 +107,5 @@ void USP_ReserveAmmoWidget::OnWeaponFirstReplicated(ASP_Weapon* Weapon, bool bTa
 	ASP_ShooterCharacter* ShooterCharacter = Cast<ASP_ShooterCharacter>(GetOwningPlayer()->GetPawn());
 	if (!IsValid(ShooterCharacter)) return;
 	
-	OnCurrentReserveAmmoChanged(ISP_PlayerInterface::Execute_GetReserveAmmo(ShooterCharacter), Weapon->Ammo);
+	OnCurrentReserveAmmoChanged(ISP_PlayerInterface::Execute_GetReserveAmmo(ShooterCharacter), Weapon->Ammo, Weapon->WeaponIcon);
 }

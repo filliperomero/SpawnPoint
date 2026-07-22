@@ -60,6 +60,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|Reticle")
 	FReticleParams ReticleParams;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|UI")
+	TObjectPtr<UMaterialInterface> WeaponIcon;
+	
 protected:
 	virtual void BeginPlay() override;
 	

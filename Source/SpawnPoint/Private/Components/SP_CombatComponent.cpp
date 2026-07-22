@@ -203,7 +203,7 @@ void USP_CombatComponent::Equip(ASP_Weapon* WeaponToEquip)
 	CurrentWeapon->AttachToOwningPawn();
 	
 	CurrentReserveAmmo = ReserveAmmo.FindChecked(CurrentWeapon->GetWeaponType());
-	OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo);
+	OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo, CurrentWeapon->WeaponIcon);
 }
 
 void USP_CombatComponent::SpawnInventory()
@@ -263,7 +263,7 @@ void USP_CombatComponent::OnRep_CurrentReserveAmmo()
 {
 	if (!IsValid(CurrentWeapon)) return;
 	
-	OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo);
+	OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo, CurrentWeapon->WeaponIcon);
 }
 
 ASP_Weapon* USP_CombatComponent::SpawnWeapon(TSubclassOf<ASP_Weapon> WeaponClass) const
