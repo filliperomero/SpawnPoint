@@ -18,6 +18,16 @@ enum class EFireType : uint8
 	SemiAuto UMETA(DisplayName = "SemiAutomatic"),
 };
 
+UENUM(BlueprintType)
+enum class EWeaponStatus : uint8
+{
+	Idle,
+	Firing,
+	Reloading,
+	Cycling,
+	Unequipped
+};
+
 UCLASS()
 class SPAWNPOINT_API ASP_Weapon : public AActor
 {
@@ -25,9 +35,8 @@ class SPAWNPOINT_API ASP_Weapon : public AActor
 
 public:
 	ASP_Weapon();
-	virtual void OnRep_Instigator() override;
 	
-	void AttachToOwningPawn() const;
+	void AttachToOwningPawn(APawn* Pawn) const;
 	void WeaponTrace(FHitResult& OutHitResult, float TraceLength);
 	void Local_Fire(const FVector& ImpactPoint, const FVector& ImpactNormal, TEnumAsByte<EPhysicalSurface> ImpactSurfaceType, bool bIsFirstPerson);
 	void Auth_Fire();
@@ -62,6 +71,8 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|UI")
 	TObjectPtr<UMaterialInterface> WeaponIcon;
+	
+	EWeaponStatus WeaponStatus { EWeaponStatus::Unequipped };
 	
 protected:
 	virtual void BeginPlay() override;

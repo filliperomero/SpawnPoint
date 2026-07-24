@@ -9,6 +9,7 @@
 #include "Types/SP_Types.h"
 #include "SP_CombatComponent.generated.h"
 
+class UAnimMontage;
 class UMaterialInstanceDynamic;
 struct FHitResult;
 class ASP_Weapon;
@@ -33,6 +34,8 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category = "SpawnPoint|Combat")
 	static USP_CombatComponent* FindCombatComponent(const AActor* Actor) { return IsValid(Actor) ? Actor->FindComponentByClass<USP_CombatComponent>() : nullptr; }
+	
+	void Notify_CycleWeapon();
 	
 	/* Cycle to the next weapon in the inventory */
 	void InitiateCycleWeapon();
@@ -77,6 +80,9 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|Weapon")
 	float TraceLength { 20000.f };
+	
+	UFUNCTION()
+	void BlendOut_CycleWeapon(UAnimMontage* Montage, bool bInterrupted);
 
 private:
 	TMap<FGameplayTag, int32> ReserveAmmo;
@@ -114,6 +120,18 @@ private:
 	
 	void Local_Aim(bool bPressed);
 	void Local_FireWeapon();
+	
+	UFUNCTION(Server, Reliable)
+	void Server_CycleWeapon(int32 WeaponIndex);
+	
+	void Local_CycleWeapon(int32 WeaponIndex);
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_CycleWeapon(int32 WeaponIndex);
+	
+	int32 Local_WeaponIndex { 0 };
+	
+	int32 AdvanceWeaponIndex();
 	
 public:
 	ASP_Weapon* GetCurrentWeapon() { return CurrentWeapon; }

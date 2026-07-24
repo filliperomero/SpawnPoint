@@ -46,6 +46,7 @@ public:
 	virtual void WeaponReplicated_Implementation() override;
 	virtual ASP_Weapon* GetCurrentWeapon_Implementation() override;
 	virtual int32 GetReserveAmmo_Implementation() const override;
+	virtual void Notify_CycleWeapon_Implementation() override;
 	/** ~PlayerInterface */
 	
 	UPROPERTY(BlueprintAssignable)

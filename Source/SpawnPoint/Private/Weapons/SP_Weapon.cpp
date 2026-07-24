@@ -31,29 +31,20 @@ ASP_Weapon::ASP_Weapon()
 	Mesh3P->SetHiddenInGame(true);
 }
 
-void ASP_Weapon::OnRep_Instigator()
-{
-	Super::OnRep_Instigator();
-	
-	// This will make sure we are attaching to the Owning Pawn on the clients
-	AttachToOwningPawn();
-}
-
 void ASP_Weapon::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-void ASP_Weapon::AttachToOwningPawn() const
+void ASP_Weapon::AttachToOwningPawn(APawn* Pawn) const
 {
-	APawn* OwningPawn = GetInstigator();
-	if (!IsValid(OwningPawn) || !OwningPawn->Implements<USP_PlayerInterface>()) return;
+	if (!IsValid(Pawn) || !Pawn->Implements<USP_PlayerInterface>()) return;
 	
-	SetMeshVisibilities(OwningPawn);
+	SetMeshVisibilities(Pawn);
 	
-	const FName AttachPoint = ISP_PlayerInterface::Execute_GetWeaponAttachPoint(OwningPawn, WeaponType);
-	USkeletalMeshComponent* PawnMesh1P = ISP_PlayerInterface::Execute_GetMesh1P(OwningPawn);
-	USkeletalMeshComponent* PawnMesh3P = ISP_PlayerInterface::Execute_GetMesh3P(OwningPawn);
+	const FName AttachPoint = ISP_PlayerInterface::Execute_GetWeaponAttachPoint(Pawn, WeaponType);
+	USkeletalMeshComponent* PawnMesh1P = ISP_PlayerInterface::Execute_GetMesh1P(Pawn);
+	USkeletalMeshComponent* PawnMesh3P = ISP_PlayerInterface::Execute_GetMesh3P(Pawn);
 	
 	Mesh1P->AttachToComponent(PawnMesh1P, FAttachmentTransformRules::KeepRelativeTransform, AttachPoint);
 	Mesh3P->AttachToComponent(PawnMesh3P, FAttachmentTransformRules::KeepRelativeTransform, AttachPoint);
