@@ -37,6 +37,7 @@ public:
 	ASP_Weapon();
 	
 	void AttachToOwningPawn(APawn* Pawn) const;
+	void DetachFromOwningPawn();
 	void WeaponTrace(FHitResult& OutHitResult, float TraceLength);
 	void Local_Fire(const FVector& ImpactPoint, const FVector& ImpactNormal, TEnumAsByte<EPhysicalSurface> ImpactSurfaceType, bool bIsFirstPerson);
 	void Auth_Fire();
@@ -72,7 +73,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|UI")
 	TObjectPtr<UMaterialInterface> WeaponIcon;
 	
-	EWeaponStatus WeaponStatus { EWeaponStatus::Unequipped };
+	EWeaponStatus WeaponStatus { EWeaponStatus::Idle };
 	
 protected:
 	virtual void BeginPlay() override;

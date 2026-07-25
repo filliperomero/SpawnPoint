@@ -72,6 +72,14 @@ void USP_CombatComponent::GetLifetimeReplicatedProps(TArray<class FLifetimePrope
 
 void USP_CombatComponent::Notify_CycleWeapon()
 {
+	if (!IsValid(CurrentWeapon)) return;
+	
+	ASP_Weapon* NewWeapon = Inventory[Local_WeaponIndex];
+	
+	if (IsValid(NewWeapon))
+	{
+		EquipWeapon(NewWeapon);
+	}
 }
 
 void USP_CombatComponent::BlendOut_CycleWeapon(UAnimMontage* Montage, bool bInterrupted)
@@ -84,6 +92,15 @@ void USP_CombatComponent::BlendOut_CycleWeapon(UAnimMontage* Montage, bool bInte
 	}
 	
 	CurrentWeapon->WeaponStatus = EWeaponStatus::Idle;
+	
+	OnReticleChanged.Broadcast(CurrentWeapon->GetReticleDynamicMaterialInstance(), CurrentWeapon->ReticleParams, bHitPlayer);
+	OnAmmoCounterChanged.Broadcast(CurrentWeapon->GetAmmoCounterDynamicMaterialInstance(), CurrentWeapon->Ammo, CurrentWeapon->MagCapacity);
+	OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo, CurrentWeapon->WeaponIcon);
+	
+	if (bFireTriggerPressed && CurrentWeapon->FireType == EFireType::Auto && CurrentWeapon->Ammo > 0)
+	{
+		Local_FireWeapon();
+	}
 }
 
 void USP_CombatComponent::InitiateCycleWeapon()
@@ -149,7 +166,7 @@ void USP_CombatComponent::InitiateFireWeaponPressed()
 	
 	bFireTriggerPressed = true;
 	
-	if (CurrentWeapon->Ammo > 0)
+	if (CurrentWeapon->WeaponStatus == EWeaponStatus::Idle && CurrentWeapon->Ammo > 0)
 	{
 		Local_FireWeapon();
 	}
@@ -284,6 +301,56 @@ void USP_CombatComponent::Equip(ASP_Weapon* WeaponToEquip)
 	OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo, CurrentWeapon->WeaponIcon);
 }
 
+void USP_CombatComponent::EquipWeapon(ASP_Weapon* Weapon)
+{
+	if (!IsValid(Weapon) || !IsValid(GetOwner())) return;
+	
+	if (GetOwner()->GetLocalRole() == ROLE_Authority)
+	{
+		SetCurrentWeapon(Weapon, CurrentWeapon);
+	}
+	else
+	{
+		Server_EquipWeapon(Weapon);
+	}
+}
+
+void USP_CombatComponent::Server_EquipWeapon_Implementation(ASP_Weapon* Weapon)
+{
+	EquipWeapon(Weapon);
+}
+
+void USP_CombatComponent::SetCurrentWeapon(ASP_Weapon* NewWeapon, ASP_Weapon* LastWeapon)
+{
+	ASP_Weapon* LocalLastWeapon = nullptr;
+	
+	if (IsValid(LastWeapon))
+	{
+		LocalLastWeapon = LastWeapon;
+	}
+	else if (NewWeapon != CurrentWeapon)
+	{
+		LocalLastWeapon = CurrentWeapon;
+	}
+	
+	if (IsValid(LocalLastWeapon))
+	{
+		LocalLastWeapon->DetachFromOwningPawn();
+		LocalLastWeapon->WeaponStatus = EWeaponStatus::Unequipped;
+	}
+	
+	CurrentWeapon = NewWeapon;
+	
+	APawn* OwningPawn = Cast<APawn>(GetOwner());
+	
+	if (IsValid(OwningPawn) && OwningPawn->HasAuthority() && IsValid(CurrentWeapon))
+	{
+		CurrentReserveAmmo = ReserveAmmo.FindChecked(CurrentWeapon->GetWeaponType());
+	}
+	
+	CurrentWeapon->AttachToOwningPawn(Cast<APawn>(GetOwner()));
+}
+
 void USP_CombatComponent::SpawnInventory()
 {
 	if (GetOwner()->GetLocalRole() < ROLE_Authority) return;
@@ -330,9 +397,8 @@ void USP_CombatComponent::InitializeWeaponWidgets()
 
 void USP_CombatComponent::OnRep_CurrentWeapon(ASP_Weapon* PrevWeapon)
 {
-	if (!IsValid(CurrentWeapon)) return;
+	SetCurrentWeapon(CurrentWeapon, PrevWeapon);
 	
-	CurrentWeapon->AttachToOwningPawn(Cast<APawn>(GetOwner()));
 	ISP_PlayerInterface::Execute_WeaponReplicated(GetOwner());
 	InitializeWeaponWidgets();
 }

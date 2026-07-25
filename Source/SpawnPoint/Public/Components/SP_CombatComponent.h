@@ -133,6 +133,12 @@ private:
 	
 	int32 AdvanceWeaponIndex();
 	
+	void EquipWeapon(ASP_Weapon* Weapon);
+	void SetCurrentWeapon(ASP_Weapon* NewWeapon, ASP_Weapon* LastWeapon);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_EquipWeapon(ASP_Weapon* Weapon);
+	
 public:
 	ASP_Weapon* GetCurrentWeapon() { return CurrentWeapon; }
 	bool IsHittingPlayer() const { return bHitPlayer;}
