@@ -180,8 +180,9 @@ void USP_CombatComponent::InitiateFireWeaponReleased()
 void USP_CombatComponent::Local_FireWeapon()
 {
 	if (!IsValid(CurrentWeapon)) return;
-	
 	ensure(IsValid(WeaponData));
+	
+	CurrentWeapon->WeaponStatus = EWeaponStatus::Firing;
 	
 	UAnimMontage* Montage1P = WeaponData->FirstPersonMontages.FindChecked(CurrentWeapon->GetWeaponType()).FireMontage;
 	USkeletalMeshComponent* Mesh1P = ISP_PlayerInterface::Execute_GetMesh1P(GetOwner());
@@ -219,6 +220,11 @@ void USP_CombatComponent::FireTimerFinished()
 {
 	if (!IsValid(CurrentWeapon)) return;
 	
+	if (CurrentWeapon->WeaponStatus == EWeaponStatus::Firing)
+	{
+		CurrentWeapon->WeaponStatus = EWeaponStatus::Idle;
+	}
+	
 	if (bFireTriggerPressed && CurrentWeapon->FireType == EFireType::Auto && CurrentWeapon->Ammo > 0)
 	{
 		Local_FireWeapon();
@@ -227,7 +233,7 @@ void USP_CombatComponent::FireTimerFinished()
 
 void USP_CombatComponent::Server_FireWeapon_Implementation(const FHitResult& Hit)
 {
-	if (!IsValid(CurrentWeapon)) return;
+	if (!IsValid(CurrentWeapon) || CurrentWeapon->Ammo <= 0) return;
 	
 	if (GetNetMode() != NM_ListenServer || !Cast<APawn>(GetOwner())->IsLocallyControlled())
 	{
