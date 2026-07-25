@@ -76,6 +76,18 @@ void ByteBufferAsyncProcessor::add_data(std::vector<Buffer::ByteArray>&& new_dat
 	//		}
 }
 
+/**
+ * @brief Cleanup pending queue. Should be called under queue_lock.
+ */
+void ByteBufferAsyncProcessor::cleanup_pending_queue()
+{
+	while (current_seqn <= acknowledged_seqn)
+	{
+		pending_queue.pop_front();
+		++current_seqn;
+	}
+}
+
 bool ByteBufferAsyncProcessor::reprocess()
 {
 	{
@@ -88,11 +100,7 @@ bool ByteBufferAsyncProcessor::reprocess()
 
 		logger->debug("{}: reprocessing waited for main processing", id);
 
-		while (current_seqn <= acknowledged_seqn)
-		{
-			pending_queue.pop_front();
-			++current_seqn;
-		}
+		cleanup_pending_queue();
 		for (int i = 0; i < pending_queue.size(); ++i)
 		{
 			auto const& item = pending_queue[i];
@@ -253,6 +261,9 @@ void ByteBufferAsyncProcessor::acknowledge(sequence_number_t seqn)
 	{
 		logger->trace("{}: new acknowledged seqn: {}", this->id, seqn);
 		acknowledged_seqn = seqn;
+
+		std::lock_guard<decltype(queue_lock)> queue_guard(queue_lock);
+		cleanup_pending_queue();
 	}
 	else
 	{
