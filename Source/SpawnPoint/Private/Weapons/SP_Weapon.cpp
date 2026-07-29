@@ -109,7 +109,10 @@ void ASP_Weapon::Local_Fire(const FVector& ImpactPoint, const FVector& ImpactNor
 	if (GetInstigator()->IsLocallyControlled())
 	{
 		Ammo = FMath::Clamp(Ammo - 1, 0, MagCapacity);
-		++Sequence;
+		if (!GetInstigator()->HasAuthority())
+		{
+			++Sequence;
+		}
 	}
 }
 
@@ -120,7 +123,7 @@ void ASP_Weapon::Auth_Fire()
 
 void ASP_Weapon::Rep_Fire(int32 AuthAmmo)
 {
-	if (GetInstigator()->IsLocallyControlled())
+	if (GetInstigator()->IsLocallyControlled() && !GetInstigator()->HasAuthority())
 	{
 		Ammo = AuthAmmo;
 		--Sequence;

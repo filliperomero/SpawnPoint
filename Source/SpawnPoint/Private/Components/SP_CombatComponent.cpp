@@ -241,7 +241,15 @@ int32 USP_CombatComponent::AdvanceWeaponIndex()
 
 void USP_CombatComponent::FireTimerFinished()
 {
-	if (!IsValid(CurrentWeapon)) return;
+	APawn* OwningPawn = Cast<APawn>(GetOwner());
+	if (!IsValid(CurrentWeapon) || !IsValid(OwningPawn)) return;
+	
+	if (CurrentWeapon->Ammo == 0 && CurrentReserveAmmo > 0 && OwningPawn->IsLocallyControlled())
+	{
+		Local_ReloadWeapon();
+		Server_ReloadWeapon();
+		return;
+	}
 	
 	if (CurrentWeapon->WeaponStatus == EWeaponStatus::Firing)
 	{
@@ -346,8 +354,6 @@ void USP_CombatComponent::Multicast_ReloadWeapon_Implementation()
 
 void USP_CombatComponent::Client_ReloadWeapon_Implementation(int32 NewWeaponAmmo, int32 NewCarriedAmmo)
 {
-	// TODO: There is a bug after reload (Count is decreasing in pair of 2
-	
 	APawn* OwningPawn = Cast<APawn>(GetOwner());
 	if (!IsValid(CurrentWeapon) || !IsValid(OwningPawn)) return;
 	
@@ -435,12 +441,20 @@ void USP_CombatComponent::SetCurrentWeapon(ASP_Weapon* NewWeapon, ASP_Weapon* La
 	
 	APawn* OwningPawn = Cast<APawn>(GetOwner());
 	
-	if (IsValid(OwningPawn) && OwningPawn->HasAuthority() && IsValid(CurrentWeapon))
+	if (!IsValid(OwningPawn) || !IsValid(CurrentWeapon)) return;
+	
+	if (OwningPawn->HasAuthority())
 	{
 		CurrentReserveAmmo = ReserveAmmo.FindChecked(CurrentWeapon->GetWeaponType());
 	}
 	
-	CurrentWeapon->AttachToOwningPawn(Cast<APawn>(GetOwner()));
+	CurrentWeapon->AttachToOwningPawn(OwningPawn);
+	
+	if (CurrentWeapon->Ammo == 0 && CurrentReserveAmmo > 0 && OwningPawn->IsLocallyControlled())
+	{
+		Local_ReloadWeapon();
+		Server_ReloadWeapon();
+	}
 }
 
 void USP_CombatComponent::SpawnInventory()
