@@ -245,6 +245,11 @@ void ASP_ShooterCharacter::Notify_CycleWeapon_Implementation()
 	CombatComponent->Notify_CycleWeapon();
 }
 
+void ASP_ShooterCharacter::Notify_ReloadWeapon_Implementation()
+{
+	CombatComponent->Notify_ReloadWeapon();
+}
+
 void ASP_ShooterCharacter::InputCycleWeapon()
 {
 	CombatComponent->InitiateCycleWeapon();

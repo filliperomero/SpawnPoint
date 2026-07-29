@@ -82,6 +82,29 @@ void USP_CombatComponent::Notify_CycleWeapon()
 	}
 }
 
+void USP_CombatComponent::Notify_ReloadWeapon()
+{
+	if (!IsValid(CurrentWeapon)) return;
+	
+	if (GetNetMode() == NM_ListenServer || GetNetMode() == NM_DedicatedServer || GetNetMode() == NM_Standalone)
+	{
+		const int32 EmptySpace = CurrentWeapon->MagCapacity - CurrentWeapon->Ammo;
+		const int32 AmountToRefill = FMath::Min(EmptySpace, CurrentReserveAmmo);
+		
+		CurrentWeapon->Ammo += AmountToRefill;
+		ReserveAmmo[CurrentWeapon->GetWeaponType()] = ReserveAmmo[CurrentWeapon->GetWeaponType()] - AmountToRefill;
+		CurrentReserveAmmo = ReserveAmmo[CurrentWeapon->GetWeaponType()];
+		
+		Client_ReloadWeapon(CurrentWeapon->Ammo, CurrentReserveAmmo);
+	}
+	
+	CurrentWeapon->WeaponStatus = EWeaponStatus::Idle;
+	if (bFireTriggerPressed && CurrentWeapon->FireType == EFireType::Auto && CurrentWeapon->Ammo > 0)
+	{
+		Local_FireWeapon();
+	}
+}
+
 void USP_CombatComponent::BlendOut_CycleWeapon(UAnimMontage* Montage, bool bInterrupted)
 {
 	UAnimInstance* AnimInstance = ISP_PlayerInterface::Execute_GetMesh1P(GetOwner())->GetAnimInstance();
@@ -272,7 +295,70 @@ void USP_CombatComponent::Multicast_FireWeapon_Implementation(const FHitResult& 
 
 void USP_CombatComponent::InitiateReloadWeapon()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Black, TEXT("Initiate Reload Weapon"), false);
+	if (!IsValid(CurrentWeapon)) return;
+	if (CurrentWeapon->WeaponStatus == EWeaponStatus::Cycling || CurrentWeapon->WeaponStatus == EWeaponStatus::Reloading) return;
+	if (CurrentWeapon->Ammo == CurrentWeapon->MagCapacity) return;
+	if (CurrentReserveAmmo == 0) return;
+	
+	Local_ReloadWeapon();
+	Server_ReloadWeapon();
+}
+
+void USP_CombatComponent::Local_ReloadWeapon()
+{
+	APawn* OwningPawn = Cast<APawn>(GetOwner());
+	if (!IsValid(CurrentWeapon) || !IsValid(OwningPawn)) return;
+	ensure(WeaponData);
+	
+	const bool bIsLocal = OwningPawn->IsLocallyControlled();
+	
+	UAnimMontage* ReloadMontage = bIsLocal 
+		? WeaponData->FirstPersonMontages.FindChecked(CurrentWeapon->GetWeaponType()).ReloadMontage
+		: WeaponData->ThirdPersonMontages.FindChecked(CurrentWeapon->GetWeaponType()).ReloadMontage;
+
+	USkeletalMeshComponent* Mesh = bIsLocal ? ISP_PlayerInterface::Execute_GetMesh1P(GetOwner()) : ISP_PlayerInterface::Execute_GetMesh3P(GetOwner());
+	
+	if (IsValid(Mesh) && IsValid(ReloadMontage))
+	{
+		Mesh->GetAnimInstance()->Montage_Play(ReloadMontage);
+	}
+	
+	UAnimMontage* WeaponReloadMontage = WeaponData->WeaponMontages.FindChecked(CurrentWeapon->GetWeaponType()).ReloadMontage;
+	USkeletalMeshComponent* WeaponMesh = bIsLocal ? CurrentWeapon->GetMesh1P() : CurrentWeapon->GetMesh3P();
+	
+	if (IsValid(WeaponMesh) && IsValid(WeaponReloadMontage))
+	{
+		WeaponMesh->GetAnimInstance()->Montage_Play(WeaponReloadMontage);
+	}
+	
+	CurrentWeapon->WeaponStatus = EWeaponStatus::Reloading;
+}
+
+void USP_CombatComponent::Server_ReloadWeapon_Implementation()
+{
+	Multicast_ReloadWeapon();
+}
+
+void USP_CombatComponent::Multicast_ReloadWeapon_Implementation()
+{
+	Local_ReloadWeapon();
+}
+
+void USP_CombatComponent::Client_ReloadWeapon_Implementation(int32 NewWeaponAmmo, int32 NewCarriedAmmo)
+{
+	// TODO: There is a bug after reload (Count is decreasing in pair of 2
+	
+	APawn* OwningPawn = Cast<APawn>(GetOwner());
+	if (!IsValid(CurrentWeapon) || !IsValid(OwningPawn)) return;
+	
+	if (OwningPawn->IsLocallyControlled())
+	{
+		CurrentWeapon->Ammo = NewWeaponAmmo;
+		CurrentReserveAmmo = NewCarriedAmmo;
+		
+		OnAmmoCounterChanged.Broadcast(CurrentWeapon->GetAmmoCounterDynamicMaterialInstance(), CurrentWeapon->Ammo, CurrentWeapon->MagCapacity);
+		OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo, CurrentWeapon->WeaponIcon);
+	}
 }
 
 void USP_CombatComponent::InitiateAimPressed()

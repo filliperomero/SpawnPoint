@@ -36,6 +36,7 @@ public:
 	static USP_CombatComponent* FindCombatComponent(const AActor* Actor) { return IsValid(Actor) ? Actor->FindComponentByClass<USP_CombatComponent>() : nullptr; }
 	
 	void Notify_CycleWeapon();
+	void Notify_ReloadWeapon();
 	
 	/* Cycle to the next weapon in the inventory */
 	void InitiateCycleWeapon();
@@ -138,6 +139,17 @@ private:
 	
 	UFUNCTION(Server, Reliable)
 	void Server_EquipWeapon(ASP_Weapon* Weapon);
+	
+	void Local_ReloadWeapon();
+	
+	UFUNCTION(Server, Reliable)
+	void Server_ReloadWeapon();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_ReloadWeapon();
+	
+	UFUNCTION(Client, Reliable)
+	void Client_ReloadWeapon(int32 NewWeaponAmmo, int32 NewCarriedAmmo);
 	
 public:
 	ASP_Weapon* GetCurrentWeapon() { return CurrentWeapon; }
