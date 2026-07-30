@@ -46,6 +46,8 @@ public:
 	void InitiateAimPressed();
 	void InitiateAimReleased();
 	
+	void AddAmmo(const FGameplayTag& WeaponType, int32 AmmoAmount);
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|Weapon")
 	TObjectPtr<USP_WeaponData> WeaponData;
 	

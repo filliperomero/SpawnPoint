@@ -379,6 +379,33 @@ void USP_CombatComponent::InitiateAimReleased()
 	Server_Aim(false);
 }
 
+void USP_CombatComponent::AddAmmo(const FGameplayTag& WeaponType, int32 AmmoAmount)
+{
+	if (!GetOwner()->HasAuthority()) return;
+	
+	if (!ReserveAmmo.Contains(WeaponType))
+	{
+		ReserveAmmo.Add(WeaponType, AmmoAmount);
+	}
+	else
+	{
+		const int32 NewAmmo = ReserveAmmo.FindChecked(WeaponType) + AmmoAmount;
+		ReserveAmmo[WeaponType] = NewAmmo;
+		
+		if (IsValid(CurrentWeapon) && CurrentWeapon->GetWeaponType().MatchesTagExact(WeaponType))
+		{
+			CurrentReserveAmmo = NewAmmo;
+			if (CurrentWeapon->Ammo == 0 && NewAmmo > 0)
+			{
+				Server_ReloadWeapon();
+			}
+
+			OnAmmoCounterChanged.Broadcast(CurrentWeapon->GetAmmoCounterDynamicMaterialInstance(), CurrentWeapon->Ammo, CurrentWeapon->MagCapacity);
+			OnCurrentReserveAmmoChanged.Broadcast(CurrentReserveAmmo, CurrentWeapon->Ammo, CurrentWeapon->WeaponIcon);
+		}
+	}
+}
+
 void USP_CombatComponent::Server_Aim_Implementation(bool bPressed)
 {
 	Local_Aim(bPressed);
