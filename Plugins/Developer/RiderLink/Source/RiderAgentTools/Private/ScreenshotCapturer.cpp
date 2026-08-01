@@ -4,6 +4,7 @@
 
 #include "Async/Async.h"
 #include "Framework/Application/SlateApplication.h"
+#include "Runtime/Launch/Resources/Version.h"
 #include "HAL/FileManager.h"
 #include "IImageWrapper.h"
 #include "IImageWrapperModule.h"
@@ -29,19 +30,19 @@
 
 namespace
 {
-    using namespace JetBrains::EditorPlugin;
+    namespace EP = JetBrains::EditorPlugin;
 
     // Build a failure ScreenshotResult — collapses the positional-constructor
     // boilerplate so the per-kind handlers stay readable.
-    ScreenshotResult Fail(const FString& Error, const FString& SourceApi = FString())
+    EP::ScreenshotResult Fail(const FString& Error, const FString& SourceApi = FString())
     {
-        return ScreenshotResult(/*success=*/false, /*path=*/FString(), /*w=*/0, /*h=*/0,
+        return EP::ScreenshotResult(/*success=*/false, /*path=*/FString(), /*w=*/0, /*h=*/0,
                                 SourceApi, Error);
     }
 
-    ScreenshotResult Ok(const FString& Path, int32 W, int32 H, const FString& SourceApi)
+    EP::ScreenshotResult Ok(const FString& Path, int32 W, int32 H, const FString& SourceApi)
     {
-        return ScreenshotResult(/*success=*/true, Path, W, H, SourceApi, /*error=*/FString());
+        return EP::ScreenshotResult(/*success=*/true, Path, W, H, SourceApi, /*error=*/FString());
     }
 
     // ── Filesystem -----------------------------------------------------------
@@ -110,7 +111,7 @@ namespace
 
     // ── Per-kind handlers ---------------------------------------------------
 
-    ScreenshotResult CaptureEditorWindow()
+    EP::ScreenshotResult CaptureEditorWindow()
     {
         const FString Api(TEXT("SlateApplication.TakeScreenshot(SWindow)"));
         if (!FSlateApplication::IsInitialized())
@@ -153,7 +154,7 @@ namespace
         return Ok(OutPath, Size.X, Size.Y, Api);
     }
 
-    ScreenshotResult CaptureViewport()
+    EP::ScreenshotResult CaptureViewport()
     {
         const FString Api(TEXT("SlateApplication.TakeScreenshot(SLevelViewport)"));
         if (!FSlateApplication::IsInitialized())
@@ -202,6 +203,35 @@ namespace
         return FSoftObjectPath(WithSuffix).TryLoad();
     }
 
+    bool LoadThumbnailFromPackage(const FAssetData& AssetData, FObjectThumbnail& OutThumb)
+    {
+#if ENGINE_MAJOR_VERSION < 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 2)
+        FString PackageFileName;
+        if (!FPackageName::DoesPackageExist(AssetData.PackageName.ToString(), &PackageFileName))
+        {
+            return false;
+        }
+
+        FNameBuilder FullNameBuilder;
+        AssetData.GetFullName(FullNameBuilder);
+        const FName AssetFullName = FName(FullNameBuilder);
+        TSet<FName> AssetFullNames;
+        AssetFullNames.Add(AssetFullName);
+
+        FThumbnailMap ThumbnailMap;
+        ThumbnailTools::LoadThumbnailsFromPackage(PackageFileName, AssetFullNames, ThumbnailMap);
+        if (FObjectThumbnail* Thumbnail = ThumbnailMap.Find(AssetFullName))
+        {
+            OutThumb = MoveTemp(*Thumbnail);
+            return true;
+        }
+
+        return false;
+#else
+        return ThumbnailTools::LoadThumbnailFromPackage(AssetData, OutThumb);
+#endif
+    }
+
     // Try the on-disk thumbnail cache for an asset that isn't loaded into the editor yet.
     // Returns true and fills OutThumb if a stored thumbnail is found in the .uasset's package.
     bool TryLoadThumbnailFromPackage(const FString& AssetPath, FObjectThumbnail& OutThumb)
@@ -216,13 +246,23 @@ namespace
             const FString WithSuffix = AssetPath + TEXT(".") + FPaths::GetBaseFilename(AssetPath);
             const FAssetData Retry = AR->GetAssetByObjectPath(FSoftObjectPath(WithSuffix));
             if (!Retry.IsValid()) return false;
-            return ThumbnailTools::LoadThumbnailFromPackage(Retry, OutThumb);
+            return LoadThumbnailFromPackage(Retry, OutThumb);
         }
-        return ThumbnailTools::LoadThumbnailFromPackage(Data, OutThumb);
+        return LoadThumbnailFromPackage(Data, OutThumb);
+    }
+    
+    bool IsThumbnailValid(const FObjectThumbnail* Thumbnail)
+    {
+        return Thumbnail && !Thumbnail->IsEmpty() &&
+#if ENGINE_MAJOR_VERSION < 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 5)
+        (!Thumbnail->AccessImageData().IsEmpty() || Thumbnail->GetCompressedDataSize() > 0);
+#else
+        Thumbnail->HasValidImageData();
+#endif
     }
 #endif
 
-    ScreenshotResult CaptureAssetPreview(const FString& AssetPath, int32 RequestedW, int32 RequestedH, bool bForceLive)
+    EP::ScreenshotResult CaptureAssetPreview(const FString& AssetPath, int32 RequestedW, int32 RequestedH, bool bForceLive)
     {
 #if !WITH_EDITOR
         return Fail(TEXT("Asset preview is editor-only"));
@@ -240,7 +280,7 @@ namespace
             if (UObject* AlreadyLoaded = FindObject<UObject>(nullptr, *AssetPath))
             {
                 if (const FObjectThumbnail* MemCached = ThumbnailTools::FindCachedThumbnail(AlreadyLoaded->GetFullName());
-                    MemCached && !MemCached->IsEmpty() && MemCached->HasValidImageData())
+                    MemCached && IsThumbnailValid(MemCached))
                 {
                     Source = MemCached;
                     Api = TEXT("ThumbnailTools.CachedThumbnail(Memory)");
@@ -248,8 +288,7 @@ namespace
             }
 
             // Step 2 — on-disk thumbnail in the .uasset package. No asset load required.
-            if (!Source && TryLoadThumbnailFromPackage(AssetPath, Buffer)
-                && !Buffer.IsEmpty() && Buffer.HasValidImageData())
+            if (!Source && TryLoadThumbnailFromPackage(AssetPath, Buffer) && IsThumbnailValid(&Buffer))
             {
                 Source = &Buffer;
                 Api = TEXT("ThumbnailTools.LoadThumbnailFromPackage");
@@ -279,7 +318,7 @@ namespace
             Api = TEXT("ThumbnailTools.RenderThumbnail(NeverFlush)");
         }
 
-        if (!Source || Source->IsEmpty() || !Source->HasValidImageData())
+        if (!Source || !IsThumbnailValid(Source))
         {
             const TCHAR* Hint = bForceLive
                 ? TEXT(": forceLive render produced no data")
@@ -303,19 +342,19 @@ namespace
 
     // Dispatch on the game thread using primitives only (no rd::Wrapper
     // captures across the AsyncTask boundary).
-    ScreenshotResult Dispatch(
-        ScreenshotKind Kind,
+    EP::ScreenshotResult Dispatch(
+        EP::ScreenshotKind Kind,
         const FString& AssetPath,
         int32 Width, int32 Height, bool bForceLive)
     {
         check(IsInGameThread());
         switch (Kind)
         {
-            case ScreenshotKind::EditorWindow:
+            case EP::ScreenshotKind::EditorWindow:
                 return CaptureEditorWindow();
-            case ScreenshotKind::Viewport:
+            case EP::ScreenshotKind::Viewport:
                 return CaptureViewport();
-            case ScreenshotKind::AssetPreview:
+            case EP::ScreenshotKind::AssetPreview:
                 if (AssetPath.IsEmpty())
                 {
                     return Fail(TEXT("assetPath is required for AssetPreview"));
