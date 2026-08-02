@@ -8,6 +8,7 @@
 #include "Types/SP_Types.h"
 #include "SP_ShooterCharacter.generated.h"
 
+class USP_HealthComponent;
 class ASP_Weapon;
 class UInputAction;
 class USP_CombatComponent;
@@ -96,6 +97,9 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SpawnPoint|Combat", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<USP_CombatComponent> CombatComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SpawnPoint|Health", meta=(AllowPrivateAccess="true"))
+	TObjectPtr<USP_HealthComponent> HealthComponent;
 	
 	/* 1st Person View (arms) */
 	UPROPERTY(VisibleAnywhere)
