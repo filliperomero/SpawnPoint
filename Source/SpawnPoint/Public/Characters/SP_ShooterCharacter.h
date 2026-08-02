@@ -49,10 +49,14 @@ public:
 	virtual void Notify_CycleWeapon_Implementation() override;
 	virtual void Notify_ReloadWeapon_Implementation() override;
 	virtual void AddAmmo_Implementation(const FGameplayTag& WeaponType, int32 AmmoAmount) override;
+	virtual bool DoDamage_Implementation(float DamageAmount, AActor* DamageInstigator) override;
 	/** ~PlayerInterface */
 	
 	UPROPERTY(BlueprintAssignable)
 	FWeaponFirstReplicated OnWeaponFirstReplicated;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "SpawnPoint|HitReact")
+	TArray<TObjectPtr<UAnimMontage>> HitReacts;
 	
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
@@ -60,6 +64,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly, Category = "SpawnPoint|Aiming")
 	float DefaultFieldOfView { 90.f };
+	
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_HitReact(int32 MontageIndex);
 
 private:
 	void InputCycleWeapon();

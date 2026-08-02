@@ -3,6 +3,7 @@
 #include "SpawnPoint/Public/Characters/SP_ShooterCharacter.h"
 
 #include "EnhancedInputComponent.h"
+#include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SP_CombatComponent.h"
@@ -255,6 +256,25 @@ void ASP_ShooterCharacter::AddAmmo_Implementation(const FGameplayTag& WeaponType
 	if (HasAuthority())
 	{
 		CombatComponent->AddAmmo(WeaponType, AmmoAmount);
+	}
+}
+
+bool ASP_ShooterCharacter::DoDamage_Implementation(float DamageAmount, AActor* DamageInstigator)
+{
+	const int32 MontageSelection = FMath::RandRange(0, HitReacts.Num() - 1);
+	Multicast_HitReact(MontageSelection);
+	
+	return false;
+}
+
+void ASP_ShooterCharacter::Multicast_HitReact_Implementation(int32 MontageIndex)
+{
+	if (GetNetMode() != NM_DedicatedServer && !IsLocallyControlled())
+	{
+		if (HitReacts.IsValidIndex(MontageIndex))
+		{
+			GetMesh()->GetAnimInstance()->Montage_Play(HitReacts[MontageIndex]);
+		}
 	}
 }
 
