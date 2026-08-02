@@ -9,7 +9,7 @@ USP_HealthComponent::USP_HealthComponent()
 	PrimaryComponentTick.bStartWithTickEnabled = false;
 	PrimaryComponentTick.bCanEverTick = false;
 	
-	SetIsReplicated(true);
+	SetIsReplicatedByDefault(true);
 }
 
 void USP_HealthComponent::BeginPlay()

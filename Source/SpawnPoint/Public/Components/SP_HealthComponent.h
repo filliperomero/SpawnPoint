@@ -45,11 +45,11 @@ public:
 	FHealthChanged OnMaxHealthChanged;
 	
 private:
-	UPROPERTY(ReplicatedUsing = OnRep_Health)
-	float Health { 0.f };
+	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRep_Health, Category = "SpawnPoint|Health")
+	float Health { 100.f };
 	
-	UPROPERTY(ReplicatedUsing = OnRep_MaxHealth)
-	float MaxHealth { 0.f };
+	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRep_MaxHealth, Category = "SpawnPoint|Health")
+	float MaxHealth { 100.f };
 	
 	UPROPERTY(ReplicatedUsing = OnRep_DeathState)
 	EDeathState DeathState { EDeathState::NotDead };
