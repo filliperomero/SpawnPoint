@@ -268,7 +268,7 @@ void USP_CombatComponent::Server_FireWeapon_Implementation(const FHitResult& Hit
 	
 	if (IsValid(Hit.GetActor()) && Hit.GetActor()->Implements<USP_PlayerInterface>())
 	{
-		ISP_PlayerInterface::Execute_DoDamage(Hit.GetActor(), 10.f, GetOwner());
+		ISP_PlayerInterface::Execute_DoDamage(Hit.GetActor(), CurrentWeapon->Damage, GetOwner());
 	}
 	
 	if (GetNetMode() != NM_ListenServer || !Cast<APawn>(GetOwner())->IsLocallyControlled())

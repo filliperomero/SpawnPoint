@@ -265,6 +265,10 @@ void ASP_ShooterCharacter::AddAmmo_Implementation(const FGameplayTag& WeaponType
 
 bool ASP_ShooterCharacter::DoDamage_Implementation(float DamageAmount, AActor* DamageInstigator)
 {
+	if (!IsValid(HealthComponent)) return false;
+	
+	HealthComponent->ChangeHealthByAmount(-DamageAmount, DamageInstigator);
+	
 	const int32 MontageSelection = FMath::RandRange(0, HitReacts.Num() - 1);
 	Multicast_HitReact(MontageSelection);
 	

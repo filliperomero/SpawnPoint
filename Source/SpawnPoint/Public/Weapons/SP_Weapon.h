@@ -58,6 +58,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpawnPoint|FireType")
 	float FireRate { 0.1f };
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpawnPoint|Damage")
+	float Damage { 15.f };
+	
 	UPROPERTY(EditAnywhere, Category = "SpawnPoint|Ammo")
 	int32 Ammo { 5 };
 	
