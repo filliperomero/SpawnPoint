@@ -8,7 +8,7 @@
 #include "SP_HealthComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FHealthChanged, USP_HealthComponent*, HealthComponent, float, OldValue, float, NewValue, AActor*, Instigator);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDeathStarted);
 
 UENUM(BlueprintType)
 enum class EDeathState : uint8 
@@ -44,6 +44,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FHealthChanged OnMaxHealthChanged;
 	
+	UPROPERTY(BlueprintAssignable)
+	FDeathStarted OnDeathStarted;
+	
 private:
 	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRep_Health, Category = "SpawnPoint|Health")
 	float Health { 100.f };
@@ -62,6 +65,8 @@ private:
 	
 	UFUNCTION()
 	void OnRep_MaxHealth(float OldMaxHealth);
+	
+	void StartDeath();
 	
 public:
 	EDeathState GetDeathState() const { return DeathState; }

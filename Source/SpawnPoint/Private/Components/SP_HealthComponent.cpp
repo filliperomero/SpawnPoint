@@ -37,7 +37,21 @@ bool USP_HealthComponent::ChangeHealthByAmount(float Amount, AActor* Instigator)
 	Health = FMath::Clamp(Health + Amount, 0.f, MaxHealth);
 	OnHealthChanged.Broadcast(this, OldValue, Health, Instigator);
 	
+	if (Health <= 0.f)
+	{
+		StartDeath();
+	}
+	
 	return Health <= 0.f;
+}
+
+void USP_HealthComponent::StartDeath()
+{
+	if (DeathState != EDeathState::NotDead) return;
+	
+	DeathState = EDeathState::DeathStarted;
+	OnDeathStarted.Broadcast();
+	GetOwner()->ForceNetUpdate();
 }
 
 void USP_HealthComponent::ChangeMaxHealthByAmount(float Amount, AActor* Instigator)
@@ -50,6 +64,10 @@ void USP_HealthComponent::ChangeMaxHealthByAmount(float Amount, AActor* Instigat
 
 void USP_HealthComponent::OnRep_DeathState(EDeathState OldDeathState)
 {
+	if (DeathState == EDeathState::DeathStarted)
+	{
+		OnDeathStarted.Broadcast();
+	}
 }
 
 void USP_HealthComponent::OnRep_Health(float OldHealth)
@@ -61,4 +79,3 @@ void USP_HealthComponent::OnRep_MaxHealth(float OldMaxHealth)
 {
 	OnMaxHealthChanged.Broadcast(this, OldMaxHealth, MaxHealth, nullptr);
 }
-

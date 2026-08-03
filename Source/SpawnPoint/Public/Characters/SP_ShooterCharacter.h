@@ -68,6 +68,12 @@ protected:
 	
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_HitReact(int32 MontageIndex);
+	
+	UFUNCTION()
+	void OnDeathStarted();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void DeathEffects();
 
 private:
 	void InputCycleWeapon();
@@ -102,7 +108,7 @@ private:
 	TObjectPtr<USP_HealthComponent> HealthComponent;
 	
 	/* 1st Person View (arms) */
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
 	TObjectPtr<USkeletalMeshComponent> Mesh1P;
 	
 	UPROPERTY(VisibleAnywhere)

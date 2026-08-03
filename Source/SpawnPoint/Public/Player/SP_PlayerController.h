@@ -20,6 +20,8 @@ class SPAWNPOINT_API ASP_PlayerController : public APlayerController
 public:
 	ASP_PlayerController();
 	
+	bool bPawnAlive { true };
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;

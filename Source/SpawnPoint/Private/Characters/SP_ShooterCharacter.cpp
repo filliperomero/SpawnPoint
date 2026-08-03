@@ -5,6 +5,7 @@
 #include "EnhancedInputComponent.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SP_CombatComponent.h"
 #include "Components/SP_HealthComponent.h"
@@ -12,6 +13,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Player/SP_PlayerController.h"
+#include "SpawnPoint/SpawnPoint.h"
 #include "Weapons/SP_Weapon.h"
 
 ASP_ShooterCharacter::ASP_ShooterCharacter()
@@ -55,8 +58,15 @@ void ASP_ShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	HealthComponent->OnDeathStarted.AddDynamic(this, &ThisClass::OnDeathStarted);
+	
 	FirstPersonCamera->SetFieldOfView(DefaultFieldOfView);
 	StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+	
+	if (ASP_PlayerController* PC = Cast<ASP_PlayerController>(GetController()); IsValid(PC))
+	{
+		PC->bPawnAlive = true;
+	}
 }
 
 void ASP_ShooterCharacter::BeginDestroy()
@@ -183,6 +193,32 @@ void ASP_ShooterCharacter::TurnInPlace(float DeltaTime)
 			StartingAimRotation = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		}
 	}
+}
+
+void ASP_ShooterCharacter::OnDeathStarted()
+{
+	if (HasAuthority())
+	{
+		CombatComponent->DestroyInventory();
+	}
+	
+	if (GetNetMode() != NM_DedicatedServer)
+	{
+		DeathEffects();
+		if (ASP_PlayerController* PC = Cast<ASP_PlayerController>(GetController()); IsValid(PC))
+		{
+			DisableInput(PC);
+			
+			if (PC->IsLocalController())
+			{
+				PC->bPawnAlive = false;
+			}
+		}
+	}
+	
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(SpawnPointTraceChannels::ECC_Weapon, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(SpawnPointTraceChannels::ECC_Weapon, ECR_Ignore);
 }
 
 void ASP_ShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

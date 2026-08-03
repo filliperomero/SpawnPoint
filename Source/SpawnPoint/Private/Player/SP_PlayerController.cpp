@@ -39,7 +39,7 @@ void ASP_PlayerController::SetupInputComponent()
 
 void ASP_PlayerController::Input_Move(const FInputActionValue& InputActionValue)
 {
-	if (!IsValid(GetPawn())) return;
+	if (!IsValid(GetPawn()) || !bPawnAlive) return;
 	
 	const FVector2D MovementVector = InputActionValue.Get<FVector2D>();
 	
@@ -53,6 +53,8 @@ void ASP_PlayerController::Input_Move(const FInputActionValue& InputActionValue)
 
 void ASP_PlayerController::Input_Look(const FInputActionValue& InputActionValue)
 {
+	if (!bPawnAlive) return;
+	
 	const FVector2D LookAxisVector = InputActionValue.Get<FVector2D>();
 
 	AddYawInput(LookAxisVector.X);
@@ -61,7 +63,7 @@ void ASP_PlayerController::Input_Look(const FInputActionValue& InputActionValue)
 
 void ASP_PlayerController::Input_Jump()
 {
-	if(!IsValid(GetCharacter())) return;
+	if(!IsValid(GetCharacter()) || !bPawnAlive) return;
 	
 	UCharacterMovementComponent* CMC = GetCharacter()->GetCharacterMovement();
 	if (!IsValid(CMC)) return;
@@ -78,7 +80,7 @@ void ASP_PlayerController::Input_Jump()
 
 void ASP_PlayerController::Input_Crouch()
 {
-	if(!IsValid(GetCharacter())) return;
+	if(!IsValid(GetCharacter()) || !bPawnAlive) return;
 	
 	if (UCharacterMovementComponent* CMC = GetCharacter()->GetCharacterMovement(); IsValid(CMC))
 	{
