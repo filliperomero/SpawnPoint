@@ -6,11 +6,11 @@
 #include "GameFramework/GameModeBase.h"
 #include "SP_GameModeBase.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class SPAWNPOINT_API ASP_GameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
+	
+public:
+	void RequestRespawn(ACharacter* Character, AController* Controller);
 };

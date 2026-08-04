@@ -87,8 +87,12 @@ private:
 	void CalculateTurnInPlaceParameters(float DeltaTime);
 	void TurnInPlace(float DeltaTime);
 	
+	bool bWeaponFirstReplicated { false };
 	FRotator StartingAimRotation;
 	float InterpAO_Yaw;
+	FTimerHandle DeathTimer;
+	
+	void DeathTimerFinished();
 	
 	UPROPERTY(BlueprintReadOnly, Category = "SpawnPoint|TurnInPlace", meta=(AllowPrivateAccess="true"))
 	float AO_Yaw;
@@ -99,7 +103,8 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = "SpawnPoint|TurnInPlace", meta=(AllowPrivateAccess="true"))
 	ETurningInPlace TurningStatus { ETurningInPlace::NotTurning };
 	
-	bool bWeaponFirstReplicated { false };
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SpawnPoint|Respawn", meta=(AllowPrivateAccess="true"))
+	float RespawnTime { 5.f };
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SpawnPoint|Combat", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<USP_CombatComponent> CombatComponent;

@@ -3,6 +3,7 @@
 #include "SpawnPoint/Public/Characters/SP_ShooterCharacter.h"
 
 #include "EnhancedInputComponent.h"
+#include "TimerManager.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -10,8 +11,10 @@
 #include "Components/SP_CombatComponent.h"
 #include "Components/SP_HealthComponent.h"
 #include "Data/SP_WeaponData.h"
+#include "Game/SP_GameModeBase.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Player/SP_PlayerController.h"
 #include "SpawnPoint/SpawnPoint.h"
@@ -200,6 +203,8 @@ void ASP_ShooterCharacter::OnDeathStarted()
 	if (HasAuthority())
 	{
 		CombatComponent->DestroyInventory();
+		
+		GetWorld()->GetTimerManager().SetTimer(DeathTimer, this, &ThisClass::DeathTimerFinished, RespawnTime);
 	}
 	
 	if (GetNetMode() != NM_DedicatedServer)
@@ -219,6 +224,16 @@ void ASP_ShooterCharacter::OnDeathStarted()
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(SpawnPointTraceChannels::ECC_Weapon, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(SpawnPointTraceChannels::ECC_Weapon, ECR_Ignore);
+}
+
+void ASP_ShooterCharacter::DeathTimerFinished()
+{
+	ASP_GameModeBase* GM = Cast<ASP_GameModeBase>(UGameplayStatics::GetGameMode(this));
+	
+	if (IsValid(GM))
+	{
+		GM->RequestRespawn(this, GetController());
+	}
 }
 
 void ASP_ShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
