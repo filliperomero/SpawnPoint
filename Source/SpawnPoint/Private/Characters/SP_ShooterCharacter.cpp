@@ -9,6 +9,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SP_CombatComponent.h"
+#include "Components/SP_EliminationComponent.h"
 #include "Components/SP_HealthComponent.h"
 #include "Data/SP_WeaponData.h"
 #include "Game/SP_GameModeBase.h"
@@ -55,6 +56,9 @@ ASP_ShooterCharacter::ASP_ShooterCharacter()
 	
 	HealthComponent = CreateDefaultSubobject<USP_HealthComponent>("HealthComponent");
 	HealthComponent->SetIsReplicated(true);
+	
+	EliminationComponent = CreateDefaultSubobject<USP_EliminationComponent>("EliminationComponent");
+	EliminationComponent->SetIsReplicated(false);
 }
 
 void ASP_ShooterCharacter::BeginPlay()
@@ -69,6 +73,11 @@ void ASP_ShooterCharacter::BeginPlay()
 	if (ASP_PlayerController* PC = Cast<ASP_PlayerController>(GetController()); IsValid(PC))
 	{
 		PC->bPawnAlive = true;
+	}
+	
+	if (HasAuthority())
+	{
+		CombatComponent->OnRoundReported.AddDynamic(EliminationComponent, &USP_EliminationComponent::OnRoundReported);
 	}
 }
 
