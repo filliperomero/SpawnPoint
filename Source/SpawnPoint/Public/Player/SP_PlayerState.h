@@ -30,6 +30,7 @@ public:
 	bool IsOnStreak() const;
 	APlayerState* GetLastAttacker() const;
 	void SetLastAttacker(APlayerState* InLastAttacker);
+	int32 GetScoredElims() const;
 	
 private:
 	int32 ScoredElims { 0 };

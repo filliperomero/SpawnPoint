@@ -4,7 +4,7 @@
 
 ASP_PlayerState::ASP_PlayerState()
 {
-	NetUpdateFrequency = 100.f;
+	SetNetUpdateFrequency(100.f);
 }
 
 void ASP_PlayerState::AddScoredElim()
@@ -107,4 +107,9 @@ APlayerState* ASP_PlayerState::GetLastAttacker() const
 void ASP_PlayerState::SetLastAttacker(APlayerState* InLastAttacker)
 {
 	LastAttacker = InLastAttacker;
+}
+
+int32 ASP_PlayerState::GetScoredElims() const
+{
+	return ScoredElims;
 }
