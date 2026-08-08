@@ -40,9 +40,11 @@ bool USP_HealthComponent::ChangeHealthByAmount(float Amount, AActor* Instigator)
 	if (Health <= 0.f)
 	{
 		StartDeath();
+		
+		return true;
 	}
 	
-	return Health <= 0.f;
+	return false;
 }
 
 void USP_HealthComponent::StartDeath()
