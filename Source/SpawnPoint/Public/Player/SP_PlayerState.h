@@ -32,6 +32,9 @@ public:
 	void SetLastAttacker(APlayerState* InLastAttacker);
 	int32 GetScoredElims() const;
 	
+	UFUNCTION(Client, Reliable)
+	void Client_LostTheLead();
+	
 private:
 	int32 ScoredElims { 0 };
 	int32 Defeats { 0 };

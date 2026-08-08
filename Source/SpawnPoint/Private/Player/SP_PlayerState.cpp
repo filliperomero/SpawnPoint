@@ -113,3 +113,8 @@ int32 ASP_PlayerState::GetScoredElims() const
 {
 	return ScoredElims;
 }
+
+void ASP_PlayerState::Client_LostTheLead_Implementation()
+{
+	// TODO: Show the client that they've lost the lead
+}
