@@ -88,3 +88,23 @@ void ASP_PlayerState::IsNowWinner()
 {
 	bWinner = true;
 }
+
+void ASP_PlayerState::SetOnStreak(bool bIsOnStreak)
+{
+	bOnStreak = bIsOnStreak;
+}
+
+bool ASP_PlayerState::IsOnStreak() const
+{
+	return bOnStreak;
+}
+
+APlayerState* ASP_PlayerState::GetLastAttacker() const
+{
+	return LastAttacker.IsValid() ? LastAttacker.Get() : nullptr;
+}
+
+void ASP_PlayerState::SetLastAttacker(APlayerState* InLastAttacker)
+{
+	LastAttacker = InLastAttacker;
+}

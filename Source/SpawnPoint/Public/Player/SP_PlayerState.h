@@ -26,6 +26,10 @@ public:
 	void AddShowStopperElim();
 	void GotFirstBlood();
 	void IsNowWinner();
+	void SetOnStreak(bool bIsOnStreak);
+	bool IsOnStreak() const;
+	APlayerState* GetLastAttacker() const;
+	void SetLastAttacker(APlayerState* InLastAttacker);
 	
 private:
 	int32 ScoredElims { 0 };
@@ -41,4 +45,7 @@ private:
 	int32 ShowStopperElims { 0 };
 	bool bFirstBlood { false };
 	bool bWinner { false };
+	
+	UPROPERTY()
+	TWeakObjectPtr<APlayerState> LastAttacker;
 };
