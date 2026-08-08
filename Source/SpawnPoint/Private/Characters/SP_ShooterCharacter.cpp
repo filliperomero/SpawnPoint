@@ -327,12 +327,15 @@ bool ASP_ShooterCharacter::DoDamage_Implementation(float DamageAmount, AActor* D
 {
 	if (!IsValid(HealthComponent)) return false;
 	
-	HealthComponent->ChangeHealthByAmount(-DamageAmount, DamageInstigator);
+	const bool bLethal = HealthComponent->ChangeHealthByAmount(-DamageAmount, DamageInstigator);
 	
-	const int32 MontageSelection = FMath::RandRange(0, HitReacts.Num() - 1);
-	Multicast_HitReact(MontageSelection);
+	if (!bLethal)
+	{
+		const int32 MontageSelection = FMath::RandRange(0, HitReacts.Num() - 1);
+		Multicast_HitReact(MontageSelection);
+	}
 	
-	return false;
+	return bLethal;
 }
 
 void ASP_ShooterCharacter::Multicast_HitReact_Implementation(int32 MontageIndex)
