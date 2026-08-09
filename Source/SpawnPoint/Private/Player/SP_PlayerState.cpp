@@ -118,3 +118,11 @@ void ASP_PlayerState::Client_LostTheLead_Implementation()
 {
 	// TODO: Show the client that they've lost the lead
 }
+
+void ASP_PlayerState::Client_ScoredElim_Implementation(int32 ElimScore)
+{
+}
+
+void ASP_PlayerState::Client_SpecialElim_Implementation(const ESpecialElimType& SpecialElimType, int32 SequentialElimCount, int32 StreakCount, int32 ElimScore)
+{
+}
